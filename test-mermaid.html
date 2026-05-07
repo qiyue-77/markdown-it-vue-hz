@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mermaid Test</title>
+  <style>
+    .mermaid-error {
+      background-color: #fff1f0;
+      border: 1px solid #ffa39e;
+      border-radius: 4px;
+      padding: 12px;
+      color: #a8071a;
+      font-family: monospace;
+      font-size: 14px;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Mermaid 图表测试</h1>
+
+  <h2>正确的流程图</h2>
+  <pre class="mermaid" data-mermaid-code="graph TD
+    A[开始] --> B[处理]
+    B --> C[结束]">graph TD
+    A[开始] --> B[处理]
+    B --> C[结束]</pre>
+
+  <h2>错误的语法</h2>
+  <pre class="mermaid" data-mermaid-code="graph TD
+    A[开始] --> B[处理]
+    B --> C[结束] 错误的语法">graph TD
+    A[开始] --> B[处理]
+    B --> C[结束] 错误的语法</pre>
+
+  <h2>另一个正确的图表</h2>
+  <pre class="mermaid" data-mermaid-code="sequenceDiagram
+    participant A as 用户
+    participant B as 系统
+    A->>B: 请求
+    B->>A: 响应">sequenceDiagram
+    participant A as 用户
+    participant B as 系统
+    A->>B: 请求
+    B->>A: 响应</pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: false });
+
+    // 模拟 Vue 组件中的异步验证和渲染逻辑
+    const mermaidNodes = document.querySelectorAll('.mermaid');
+    mermaidNodes.forEach(async (node) => {
+      try {
+        const encodedCode = node.getAttribute('data-mermaid-code');
+        if (encodedCode) {
+          const code = decodeURIComponent(encodedCode);
+
+          // 异步验证 mermaid 语法
+          await mermaid.parse(code);
+
+          // 如果验证通过，渲染图表
+          node.innerHTML = code;
+          await mermaid.run({
+            nodes: [node]
+          });
+        }
+      } catch (error) {
+        // 如果验证失败，显示错误信息
+        node.outerHTML = `<pre class="mermaid-error">Mermaid syntax error: ${error.message}</pre>`;
+      }
+    });
+  </script>
+</body>
+
+</html>
