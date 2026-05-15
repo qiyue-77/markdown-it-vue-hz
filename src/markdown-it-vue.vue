@@ -208,7 +208,7 @@ export default {
                 encodedCode
               )}" data-error="${this.htmlEncode(
                 error.message
-              )}"> <img src="${mermaidError}" alt=""></div>`)
+              )}"> <img src="${mermaidError}" alt="" data-no-preview="true" style="height: 100%;"></div>`)
         }
       })
       this.$refs['markdown-it-vue-container']
@@ -240,6 +240,9 @@ export default {
     },
     hdlClick(e) {
       if (this.viewer && e.target.tagName == 'IMG') {
+        if (e.target.closest('.mermaid-error') || e.target.dataset.noPreview === 'true') {
+          return
+        }
         this.index = this.urlList.indexOf(e.target.src) || 0
         this.showViewer = true
       }
