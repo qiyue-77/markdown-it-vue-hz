@@ -9,12 +9,27 @@
       <textarea class="md-text" rows="10" v-model="content" />
       <markdown-it-vue
         class="md-body"
-        :content="content"
+        :content="flowData.complete"
         :options="options"
         ref="markdown"
-        @render-complete="hdlCmplete"
-        :mermaidFlag="false"
+        :codeBlockType="flowData.codeBlockType"
+        :streamDone="flowData.streamDone"
+        @html-preview="handleHtmlPreview"
+        @html-download="handleHtmlDownload"
       />
+    </div>
+    <div
+      v-if="showPreviewModal"
+      class="preview-modal"
+      @click="showPreviewModal = false"
+    >
+      <div class="preview-content" @click.stop>
+        <div class="preview-header">
+          <span>HTML 预览</span>
+          <button @click="showPreviewModal = false">关闭</button>
+        </div>
+        <iframe ref="previewFrame" class="preview-body" />
+      </div>
     </div>
     <!-- <div ref="echart" style="height: 500px;"></div> -->
   </div>
@@ -36,35 +51,14 @@ export default {
         '```echarts\n{\n  "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},\n  "xAxis": {\n    "type": "category",\n    "data": ["通讯次数", "出入境", "酒店住宿", "交通轨迹"]\n  },\n  "yAxis": {"type": "value"},\n  "series": [\n    {\n      "data": [118, 5, 22, 45],\n      "type": "bar",\n      "itemStyle": {"color": "#36a2eb"}\n    }\n  ]\n}\n```',
       content:
         '```mermaid\ngraph TD\n    A[统计工单数量] --> B[筛选近三日]\n    B --> C[按热力站聚合]\n    C --> D[排序取前五]\n    D --> E[获取运行工况]\n    E --> F[分析一次参数]\n    F --> G[评估运行状态]\n```\n![风景照片](https://example.com/image.jpg "美丽的山景")',
-      str: '<attempt_completion>\n<result>mermaid\ngraph TD\n    Start[分析开始] --> Understand[理解分析需求]\n    Understand --> Focus[聚焦运行工况]\n    Focus --> Judge{判断分析方向}\n    Judge -->|参数监测| Analyze1[一次网参数分析]\n    Judge -->|用户感知| Analyze2[室温与工单分析]\n    Judge -->|环境影响| Analyze3[室外气象关联]\n    Analyze1 --> Extract1[提取压力温度数据]\n    Analyze2 --> Extract2[提取室温工单数据]\n    Analyze3 --> Extract3[提取气象数据]\n    Extract1 --> PlanQuery1[规划运行参数查询]\n    Extract2 --> PlanQuery2[规划室温工单查询]\n    Extract3 --> PlanQuery3[规划气象数据查询]\n    PlanQuery1 --> Final[生成完整查询规划]\n    PlanQuery2 --> Final\n    PlanQuery3 --> Final\n```\n\n# 第二阶段：查询任务规划\n\n## 分析目标\n为全面掌握太阳宫新区站的运行状态，制定以下数据查询规划，旨在从设备运行、用户室温和服务响应三个维度进行综合研判。\n\n## 具体查询任务\n\n#### 任务1：一次网运行参数查询\n- **业务目标**： 验证热力站一次网关键运行参数是否在安全、高效区间内。\n- **数据表**： `ubd_sayy_dm_subject.dm_d_sayy_station_operation_conditions_5min_i`\n- **查询内容**： 查询太阳宫新区站在最近3天内的5分钟频率一次供水压力、一次回水压力、一次供水温度、一次回水温度。\n- **查询条件**： \n  - station_name = "太阳宫新区站"\n  - data_time >= date_sub(current_date, 3)\n- **预期输出**： 原始数据集，用于计算并评估一次供回水压差、温差及回水温度的合理性。\n\n#### 任务2：室温监控指标查询\n- **业务目标**： 量化评估供热服务质量，识别供热不达标区域。\n- **数据表**： `ubd_sayy_dm_subject.dm_d_sayy_room_temp_monitor_15min_i`\n- **查询内容**： 查询太阳宫新区站所辖用户在最近3天内的15分钟频率室温数据。\n- **查询条件**： \n  - station_name = "太阳宫新区站"\n  - data_time >= date_sub(current_date, 3)\n- **预期输出**： 汇总计算出的日均合格率、低温率、高温率、平均室温等指标，形成趋势图表。\n\n#### 任务3：工单业务情况查询\n- **业务目标**： 分析用户诉求，评估服务效率和问题集中点。\n- **数据表**： `ubd_khfw_dm_kfpt.dm_h_khfw_sheet_info_i`\n- **查询内容**： 查询与太阳宫新区站相关的所有工单记录。\n- **查询条件**： \n  - related_station = "太阳宫新区站"\n  - create_time >= date_sub(current_date, 7)\n- **预期输出**： 工单总数、日趋势图、报事类型TOP5、一次解决率、平均响应时长。\n\n#### 任务4：室外气象数据查询\n- **业务目标**： 为运行参数调整提供外部环境依据。\n- **数据表**： `iceberg_hms_on_hdfs_catalog.ubd_sayy_ods_swqx.ods_d_sayy_qy_short12_i`\n- **查询内容**： 查询太阳宫区域最近3天的实时气温。\n- **查询条件**： \n  - name like \'%太阳宫%\' or area_code = \'CY\'\n  - record_time >= date_sub(current_date, 3)\n- **预期输出**： 日均气温、最低气温、最高气温的时间序列数据。\n</result>\n</attempt_completion>',
+      str: '<attempt_completion>\n<result>```mermaid\ngraph TD\n    Start[分析开始] --> Understand[理解分析需求]\n    Understand --> Focus[聚焦运行工况]\n    Focus --> Judge{判断分析方向}\n    Judge -->|参数监测| Analyze1[一次网参数分析]\n    Judge -->|用户感知| Analyze2[室温与工单分析]\n    Judge -->|环境影响| Analyze3[室外气象关联]\n    Analyze1 --> Extract1[提取压力温度数据]\n    Analyze2 --> Extract2[提取室温工单数据]\n    Analyze3 --> Extract3[提取气象数据]\n    Extract1 --> PlanQuery1[规划运行参数查询]\n    Extract2 --> PlanQuery2[规划室温工单查询]\n    Extract3 --> PlanQuery3[规划气象数据查询]\n    PlanQuery1 --> Final[生成完整查询规划]\n    PlanQuery2 --> Final\n    PlanQuery3 --> Final\n```\n\n# 第二阶段：查询任务规划\n\n## 分析目标\n为全面掌握太阳宫新区站的运行状态，制定以下数据查询规划，旨在从设备运行、用户室温和服务响应三个维度进行综合研判。\n\n## 具体查询任务\n\n#### 任务1：一次网运行参数查询\n- **业务目标**： 验证热力站一次网关键运行参数是否在安全、高效区间内。\n- **数据表**： `ubd_sayy_dm_subject.dm_d_sayy_station_operation_conditions_5min_i`\n- **查询内容**： 查询太阳宫新区站在最近3天内的5分钟频率一次供水压力、一次回水压力、一次供水温度、一次回水温度。\n- **查询条件**： \n  - station_name = "太阳宫新区站"\n  - data_time >= date_sub(current_date, 3)\n- **预期输出**： 原始数据集，用于计算并评估一次供回水压差、温差及回水温度的合理性。\n\n#### 任务2：室温监控指标查询\n- **业务目标**： 量化评估供热服务质量，识别供热不达标区域。\n- **数据表**： `ubd_sayy_dm_subject.dm_d_sayy_room_temp_monitor_15min_i`\n- **查询内容**： 查询太阳宫新区站所辖用户在最近3天内的15分钟频率室温数据。\n- **查询条件**： \n  - station_name = "太阳宫新区站"\n  - data_time >= date_sub(current_date, 3)\n- **预期输出**： 汇总计算出的日均合格率、低温率、高温率、平均室温等指标，形成趋势图表。\n\n#### 任务3：工单业务情况查询\n- **业务目标**： 分析用户诉求，评估服务效率和问题集中点。\n- **数据表**： `ubd_khfw_dm_kfpt.dm_h_khfw_sheet_info_i`\n- **查询内容**： 查询与太阳宫新区站相关的所有工单记录。\n- **查询条件**： \n  - related_station = "太阳宫新区站"\n  - create_time >= date_sub(current_date, 7)\n- **预期输出**： 工单总数、日趋势图、报事类型TOP5、一次解决率、平均响应时长。\n\n#### 任务4：室外气象数据查询\n- **业务目标**： 为运行参数调整提供外部环境依据。\n- **数据表**： `iceberg_hms_on_hdfs_catalog.ubd_sayy_ods_swqx.ods_d_sayy_qy_short12_i`\n- **查询内容**： 查询太阳宫区域最近3天的实时气温。\n- **查询条件**： \n  - name like \'%太阳宫%\' or area_code = \'CY\'\n  - record_time >= date_sub(current_date, 3)\n- **预期输出**： 日均气温、最低气温、最高气温的时间序列数据。\n</result>\n</attempt_completion>',
       redDocumentMd: '',
-      htmlContent: `<div style="margin: 0 auto; padding: 40px 50px; max-width: 800px; font-family: 'SimSun', '宋体', serif; line-height: 1.8; font-size: 16px;">
-    <div style="text-align: center; padding: 10px 0; border-bottom: 3px solid #c8102e; margin-bottom: 30px;">
-        <div style="font-size: 24px; font-weight: bold; color: #c8102e; letter-spacing: 4px; margin-bottom: 5px;">XX省XX市人民政府办公厅</div>
-        <div style="font-size: 18px; font-weight: 600; color: #c8102e; letter-spacing: 2px;">文件</div>
-    </div>
-    <div style="text-align: right; margin-bottom: 40px; font-size: 15px; color: #333;">X政办〔2026〕12号</div>
-    <div style="text-align: center; font-size: 20px; font-weight: bold; margin-bottom: 40px; letter-spacing: 1px;">关于开展2026年度安全生产专项检查的通知</div>
-    <div style="margin-bottom: 40px; text-indent: 2em; color: #333;">
-        <div style="margin-bottom: 15px;">各区县人民政府，市直各有关单位：</div>
-        <div style="margin-bottom: 15px;">为深入贯彻落实全国安全生产电视电话会议精神，切实防范化解重大安全风险，保障人民群众生命财产安全，经市政府研究决定，自2026年2月1日至3月31日，在全市范围内开展安全生产专项检查工作。现将有关事项通知如下：</div>
-        <div style="margin-bottom: 15px;"><strong style="font-weight: bold;">一、检查范围</strong>：全市所有生产经营单位，重点涵盖矿山、化工、建筑施工、交通运输、消防等高危行业领域。</div>
-        <div style="margin-bottom: 15px;"><strong style="font-weight: bold;">二、检查内容</strong>：安全生产责任制落实情况、安全隐患排查治理情况、安全培训教育情况、应急救援预案制定及演练情况等。</div>
-        <div style="margin-bottom: 15px;"><strong style="font-weight: bold;">三、工作要求</strong>：各单位要高度重视本次专项检查，成立专项工作小组，细化检查方案，对排查出的安全隐患要建立台账，限期整改，确保整改到位。</div>
-    </div>
-    <div style="text-align: right; color: #333;">
-        <div style="margin-bottom: 5px;">XX省XX市人民政府办公厅</div>
-        <div style="margin-bottom: 5px;">2026年1月21日</div>
-    </div>
-    <div style="margin-top: 50px; font-size: 14px; color: #666; border-top: 1px solid #eee; padding-top: 10px;">
-        抄送：省应急管理厅，市委办公室，市人大办公室，市政协办公室。<br>
-        XX市人民政府办公厅 2026年1月21日印发
-    </div>
-</div>`,
+      htmlContent:
+        '```html\n<div style="width:210mm;min-height:297mm;background:#fff;padding:37mm 26mm 35mm 28mm;position:relative;box-shadow:0 0 10px rgba(0,0,0,0.1);font-family:仿宋,FangSong_GB2312,SimSun,serif;margin:0 auto;">\n  <div style="width:158.3mm;font-family:黑体,sans-serif;margin-bottom:5mm;">\n    <div>非密★2026年</div>\n    <div>一般</div>\n  </div>\n\n  <h1 style="font-family:方正小标宋简体,小标宋体,华文中宋,SimSun;font-size:45pt;color:#FF0000;text-align:center;margin:0 0 10mm 0;">政工会会议纪要</h1>\n\n  <div style="width:157.5mm;margin-bottom:10mm;">\n    <div style="text-align:center;margin-bottom:2mm;">〔2026〕XX号</div>\n    <div style="display:flex;justify-content:space-between;">\n      <span>党委行政办公室</span>\n      <span>2026年5月20日</span>\n    </div>\n  </div>\n\n  <h2 style="font-family:方正小标宋简体,小标宋体,华文中宋,SimSun;font-size:22pt;text-align:center;margin:10mm 0 8mm 0;">关于2026年度重点工作推进安排的会议纪要</h2>\n\n  <div style="margin-bottom:6mm;">主送：各部门、各单位</div>\n\n  <p style="font-size:16pt;text-align:justify;text-indent:2em;margin-bottom:6mm;">为进一步统一思想、明确任务、压实责任，切实推动年度各项工作落地见效，单位召开政工工作专题会议。会议全面总结前期工作开展情况，分析当前存在的问题与不足，研究部署下一阶段重点任务。相关负责同志及各部门负责人参加会议。</p>\n  <p style="font-size:16pt;text-align:justify;text-indent:2em;margin-bottom:6mm;">会议议定：一是强化理论武装，持续抓好思想政治教育，提升队伍整体素质；二是细化工作举措，对照年度目标逐项分解任务，明确时限要求；三是加强作风建设，严明工作纪律，提高执行效能；四是统筹安全与发展，做好风险防控，保障各项工作平稳有序。</p>\n  <p style="font-size:16pt;text-align:justify;text-indent:2em;margin-bottom:6mm;">会议要求，各部门要提高站位、密切配合、狠抓落实，及时报送工作进展，确保高质量完成全年各项目标任务。</p>\n\n  <div style="margin-top:8mm;font-size:16pt;">附件：无</div>\n\n  <table style="width:100%;border-collapse:collapse;margin-top:25mm;font-size:14pt;">\n    <tr>\n      <td style="border:1px solid #000;padding:2mm;vertical-align:middle;"></td>\n      <td colspan="4" style="border:1px solid #000;padding:2mm;vertical-align:middle;">主送：各部门、各单位</td>\n    </tr>\n    <tr>\n      <td style="border:1px solid #000;padding:2mm;vertical-align:middle;"></td>\n      <td colspan="4" style="border:1px solid #000;padding:2mm;vertical-align:middle;">抄送：相关领导</td>\n    </tr>\n    <tr>\n      <td colspan="3" style="border:1px solid #000;padding:2mm;vertical-align:middle;">XX单位</td>\n      <td colspan="2" style="border:1px solid #000;padding:2mm;vertical-align:middle;">2026年5月20日印发</td>\n    </tr>\n    <tr>\n      <td colspan="2" style="border:1px solid #000;padding:2mm;vertical-align:middle;">联系人：</td>\n      <td colspan="2" style="border:1px solid #000;padding:2mm;vertical-align:middle;">电话：</td>\n      <td style="border:1px solid #000;padding:2mm;vertical-align:middle;">共印份</td>\n    </tr>\n  </table>\n\n  <div style="position:absolute;bottom:20mm;left:50%;transform:translateX(-50%);font-size:14pt;">—1—</div>\n</div>```',
       options: {
         markdownIt: {
           linkify: true,
-          html: true,
+          html: false,
           typographer: true,
         },
         linkAttributes: {
@@ -83,10 +77,8 @@ export default {
         think: '', //判断标签thinking时，将思考的流放置在此
         question: '', //判断ask_followup_question时，将问题的流放置在此
         questionList: [], //问题选择列表列表
-        complete:
-          '```mermaid\ngraph TD\n    A[统计工单数量] --> B[筛选近三日]\n    B --> C[按热力站聚合]\n    C --> D[排序取前五]\n    D --> E[获取运行工况]\n    E --> F[分析一次参数]\n    F --> G[评估运行状态]\n```', //判断attempt_completion时，将完成的流放置在此
-        allMessage:
-          '<thinking>第二阶段：构建可执行分析框架。根据第一阶段获取的业务规则，提炼出核心分析路径，生成简洁的Mermaid脑图，聚焦“工单数量统计 → 排名前五热力站 → 运行工况分析”主干流程。</thinking>\n```mermaid\ngraph TD\n    A[统计工单数量] --> B[筛选近三日]\n    B --> C[按热力站聚合]\n    C --> D[排序取前五]\n    D --> E[获取运行工况]\n    E --> F[分析一次参数]\n    F --> G[评估运行状态]\n',
+        complete: '',
+        allMessage: '', //所有的消息流
         target: 'attempt_completion', //必须要检测到标签不然就会报错
         serverName: '', //模拟服务
         toolName: '', //测试工具
@@ -95,19 +87,23 @@ export default {
         toolErrorMessage: '', //工具使用失败的错误信息
         toolId: '', //工具调用ID
         streamStop: false,
-        mermaid: true,
+        codeBlockType: null,
+        streamDone: false,
       },
       index: 0,
       flow: null,
       replaceStr: '',
+      testStr: '',
+      showPreviewModal: false,
+      previewHtml: '',
     }
   },
-  created() {},
+  created() {
+    this.testStr = `<attempt_completion>\n<result>\n${this.htmlContent}\n</result>\n</attempt_completion>`
+  },
   mounted() {
     this.redDocumentMd = `
-<!-- 标题区域 -->
 <div style="font-size: 16px; font-weight: 500; margin-bottom: 15px;">多维风险等级评估完成。</div>
-
 <!-- 图表容器（Flex布局，匹配参考图的左右分布） -->
 <div style="display: flex; gap: 20px; margin-bottom: 20px;">
   <!-- 左侧：风险维度评估（雷达图） -->
@@ -169,54 +165,83 @@ export default {
         'use_skills',
         'skills_name',
       ]
-      const needEndList = ['/center', '/dev', '/span', '/i']
       const handleBuffer = (field) => {
-        if (targetEnd != -1 && !item.mermaid && tagEnd != -1) {
-          console.log(buffer, '++++++++++++buffer')
-          const tag = buffer.substring(tagStart + 1, tagEnd)
-          const needTag = needEndList.includes(tag) ? true : false
-          if (needTag) {
-            item[field] += buffer.slice(0, tagEnd + 1)
+        if (targetEnd != -1 && !item.codeBlockType) {
+          if (tagEnd != -1) {
+            item[field] += buffer.slice(0, targetEnd)
             buffer = buffer.substring(tagEnd + 1)
+            target = ''
             return
           }
-          item[field] += buffer.slice(0, targetEnd)
-          buffer = buffer.substring(tagEnd + 1)
-          target = ''
-          return
-        } else if (targetEnd != -1 && !item.mermaid && tagEnd == -1) {
           item[field] += buffer.slice(0, targetEnd)
           buffer = buffer.substring(targetEnd)
           return
         }
-        if (item.mermaid && buffer.indexOf('```') != -1) {
-          let mermaidIndex = buffer.indexOf('```')
-          item[field] += buffer.slice(0, mermaidIndex + 3)
-          buffer = buffer.slice(mermaidIndex + 3)
-          item.mermaid = false
+        if (item.codeBlockType && buffer.indexOf('```') != -1) {
+          let endIndex = buffer.indexOf('```')
+          item[field] += buffer.slice(0, endIndex + 3)
+          buffer = buffer.slice(endIndex + 3)
+          item.codeBlockType = null
           return
         } else if (
-          item.mermaid &&
+          item.codeBlockType &&
           buffer.indexOf('`') != -1 &&
           buffer.length < 5
         ) {
-          let mermaidIndex = buffer.indexOf('`')
-          item[field] += buffer.slice(0, mermaidIndex)
-          buffer = buffer.slice(mermaidIndex)
+          let tickIndex = buffer.indexOf('`')
+          item[field] += buffer.slice(0, tickIndex)
+          buffer = buffer.slice(tickIndex)
           return
         }
-        if (!item.mermaid && buffer.indexOf('```') != -1) {
-          let mermaidIndex = buffer.indexOf('```')
-          item[field] += buffer.slice(0, mermaidIndex + 3)
-          buffer = buffer.slice(mermaidIndex + 3)
-          item.mermaid = true
+        if (!item.codeBlockType && buffer.indexOf('```') != -1) {
+          let startIndex = buffer.indexOf('```')
+          let afterTicks = buffer.slice(startIndex + 3)
+          if (afterTicks.length < 15 && !afterTicks.includes('\n')) {
+            item[field] += buffer.slice(0, startIndex)
+            buffer = buffer.slice(startIndex)
+            return
+          }
+          let newlineIndex = afterTicks.indexOf('\n')
+          let typeCandidate =
+            newlineIndex !== -1
+              ? afterTicks.slice(0, newlineIndex).trim()
+              : afterTicks.trim()
+          if (typeCandidate) {
+            item.codeBlockType = typeCandidate
+            item[field] += buffer.slice(0, startIndex + 3)
+            buffer = buffer.slice(startIndex + 3)
+            return
+          } else {
+            item[field] += buffer.slice(0, startIndex + 3)
+            buffer = buffer.slice(startIndex + 3)
+            return
+          }
+        }
+        if (
+          !item.codeBlockType &&
+          buffer.indexOf('``') != -1 &&
+          buffer.length < 5
+        ) {
+          let tickIndex = buffer.indexOf('``')
+          item[field] += buffer.slice(0, tickIndex)
+          buffer = buffer.slice(tickIndex)
           return
         }
-        if (item.mermaid) {
+        if (
+          !item.codeBlockType &&
+          buffer.indexOf('`') != -1 &&
+          buffer.length < 5
+        ) {
+          let tickIndex = buffer.indexOf('`')
+          item[field] += buffer.slice(0, tickIndex)
+          buffer = buffer.slice(tickIndex)
+          return
+        }
+        if (item.codeBlockType) {
           item[field] += buffer
           buffer = ''
         }
-        if (!item.mermaid) {
+        if (!item.codeBlockType) {
           //为什么要写这个怕有些模型是后端按长度切割的字符串，他们会可能把结束标签的</的<单独切开了，这要是把buffer置空了，那就会导致检测不到结束标签
           if (
             (buffer.includes('<') && buffer.length < 15) ||
@@ -235,7 +260,13 @@ export default {
         tagEnd = buffer.lastIndexOf('>')
         targetEnd = buffer.indexOf('</')
         //标签为空才需要判断并且提取标签
-        if (!target && tagStart != -1 && tagEnd != -1 && tagEnd > tagStart) {
+        if (
+          !target &&
+          !item.codeBlockType &&
+          tagStart != -1 &&
+          tagEnd != -1 &&
+          tagEnd > tagStart
+        ) {
           target = buffer.substring(tagStart + 1, tagEnd)
           target = targetList.includes(target) ? target : ''
           if (targetEnd != -1 && target) {
@@ -248,7 +279,7 @@ export default {
           tagStart = -1
           tagEnd = -1
         }
-        if (!item.target && !target && tagStart == -1) {
+        if (!item.target && !item.codeBlockType && !target && tagStart == -1) {
           notarget == 'complete' &&
             item.target == '' &&
             ((item.target = 'attempt_completion'), (target = 'result'))
@@ -294,7 +325,7 @@ export default {
           case 'use_skills':
             item.target = target
             target = ''
-             break
+            break
           case 'use_mcp_tool':
             item.target = target
             target = ''
@@ -335,8 +366,12 @@ export default {
       }
     },
     onclick() {
-      this.flow('`', 'think')
-      this.index++
+      const chunk = this.testStr.slice(this.index, this.index + 5)
+      this.flow(chunk, 'think')
+      this.index += 5
+      if (this.index >= this.testStr.length) {
+        this.flowData.streamDone = true
+      }
     },
     download() {
       const htmlContent = this.$refs.markdown.$el
@@ -617,10 +652,10 @@ export default {
     },
     onTime() {
       setInterval(() => {
-        if (this.index <= this.str.length) {
+        // if (this.index < this.testStr.length) {
           this.onclick()
-        }
-      }, 100)
+        // }
+      }, 50)
     },
     // 2. 解码：还原原始字符串
     htmlDecode(str) {
@@ -667,6 +702,50 @@ export default {
       )
       this.content = str
     },
+    handleHtmlPreview(rawHtml) {
+      this.showPreviewModal = true
+      this.$nextTick(() => {
+        const iframe = this.$refs.previewFrame
+        if (!iframe) return
+        const doc = iframe.contentDocument || iframe.contentWindow.document
+        doc.open()
+        doc.write(rawHtml)
+        doc.close()
+      })
+    },
+    handleHtmlDownload(rawHtml) {
+      const fullHTML = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>下载</title>
+</head>
+<body>
+${rawHtml}
+</body>
+</html>`
+      const converted = htmlDocx.asBlob(fullHTML, {
+        orientation: 'portrait',
+        margins: {
+          top: 1440,
+          right: 1440,
+          bottom: 1440,
+          left: 1440,
+        },
+      })
+      const url = URL.createObjectURL(converted)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'download.docx'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    },
+    handleMermaidError(errorInfo) {
+      console.log('Mermaid渲染错误:', errorInfo)
+      // 这里可以添加用户提示或其他错误处理逻辑
+    },
   },
 }
 </script>
@@ -684,5 +763,45 @@ export default {
 .md-body {
   width: 50%;
   margin-left: 20px;
+}
+
+.preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.preview-content {
+  background: #fff;
+  width: 80%;
+  max-width: 900px;
+  max-height: 80vh;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e1e4e8;
+  font-weight: 600;
+}
+
+.preview-body {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #fff;
 }
 </style>

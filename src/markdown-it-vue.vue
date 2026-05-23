@@ -32,6 +32,7 @@ import MarkdownItSourceMap from 'markdown-it-source-map'
 import MarkdownItLinkAttributes from './markdown-it-link-attributes'
 import MarkdownItEcharts from './markdown-it-plugin-echarts'
 import MarkdownItMermaid from './markdown-it-plugin-mermaid'
+import MarkdownItHtml from './markdown-it-plugin-html'
 import MarkdownItFlowchart from './markdown-it-plugin-flowchart'
 import MarkdownItHighlight from './markdown-it-highlight'
 import MarkdownItFontAwsome from './markdown-it-font-awsome'
@@ -85,7 +86,7 @@ export default {
           markdownIt: {
             linkify: true,
             html: true,
-            typographer: true 
+            typographer: true,
           },
           linkAttributes: DEFAULT_OPTIONS_LINK_ATTRIBUTES,
           katex: DEFAULT_OPTIONS_KATEX,
@@ -95,23 +96,50 @@ export default {
         }
       },
     },
-    mermaidFlag: {
+    codeBlockType: {
+      type: String,
+      default: null,
+    },
+    streamDone: {
       type: Boolean,
       default: false,
     },
   },
   watch: {
+    streamDone(val) {
+      if (!val) return
+      this.stopHtmlSpin()
+      this.$nextTick(() => {
+        const container = this.$refs['markdown-it-vue-container']
+        if (!container) return
+        container.querySelectorAll('.md-html[data-loading="true"]').forEach((el) => {
+          el.removeAttribute('data-loading')
+        })
+      })
+    },
     content: {
       immediate: true,
       async handler(val) {
         this.urlSet.clear()
         this.$nextTick(async () => {
-          if (this.mermaidFlag) {
+          if (this.codeBlockType) {
             try {
+              switch (this.codeBlockType) {
+                case 'mermaid': {
+                  console.log('mermaid code:', val)
+                  const lastMermaidIndex = val.lastIndexOf('mermaid')
+                  await mermaid.parse(val.slice(lastMermaidIndex + 7))
+                  this.runderHtml(val)
+                  break
+                }
+                case 'html':
+                  this.runderHtml(val)
+                  this.startHtmlSpin()
+                  break
+                default:
+                  break
+              }
               // 尝试解析，正确时返回 true，错误时抛出异常
-              const lastMermaidIndex = val.lastIndexOf('mermaid')
-              await mermaid.parse(val.slice(lastMermaidIndex + 7))
-              this.runderHtml(val)
             } catch (error) {
               return
             }
@@ -147,6 +175,7 @@ export default {
       .use(MarkdownItSourceMap)
       .use(MarkdownItMermaid, optMermaid)
       .use(MarkdownItEcharts)
+      .use(MarkdownItHtml)
       .use(MarkdownItFlowchart)
       .use(MarkdownItLinkAttributes, linkAttributes)
       .use(MarkdownItKatex, optKatex)
@@ -163,6 +192,8 @@ export default {
       showViewer: false,
       index: 0,
       urlList: [],
+      htmlSpinAngle: 0,
+      htmlSpinRafId: null,
     }
   },
   methods: {
@@ -174,12 +205,20 @@ export default {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;')
     },
+    htmlDecode(str) {
+      return str
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+    },
     runderHtml(val) {
       this.$refs['markdown-it-vue-container'].innerHTML = this.md.render(val)
       // render echarts
       this.$refs['markdown-it-vue-container']
         .querySelectorAll('.md-echarts')
-        .forEach((element) => {  
+        .forEach((element) => {
           try {
             let options = JSON.parse(element.textContent)
             let chart = echarts.init(element)
@@ -202,7 +241,7 @@ export default {
             })
           }
         } catch (error) {
-          this.mermaidFlag
+          this.codeBlockType === 'mermaid'
             ? (node.outerHTML = '')
             : (node.outerHTML = `<div  class="mermaid-error" data-code="${this.htmlEncode(
                 encodedCode
@@ -224,11 +263,49 @@ export default {
           }
         })
 
+      // render html blocks
+      this.$refs['markdown-it-vue-container']
+        .querySelectorAll('.md-html')
+        .forEach((element) => {
+          if (this.streamDone) {
+            element.removeAttribute('data-loading')
+          }
+          const sourceEl = element.querySelector('.md-html-source code')
+          const rawHtml = sourceEl ? sourceEl.textContent : ''
+          const previewBtn = element.querySelector('.md-html-preview')
+          if (previewBtn) {
+            previewBtn.addEventListener('click', (e) => {
+              e.stopPropagation()
+              this.$emit('html-preview', rawHtml)
+            })
+          }
+          const downloadBtn = element.querySelector('.md-html-download')
+          if (downloadBtn) {
+            downloadBtn.addEventListener('click', (e) => {
+              e.stopPropagation()
+              this.$emit('html-download', rawHtml)
+            })
+          }
+          const header = element.querySelector('.md-html-header')
+          if (header) {
+            header.addEventListener('click', (e) => {
+              if (e.target.closest('.md-html-actions')) return
+              element.classList.toggle('collapsed')
+            })
+          }
+        })
+
       let list = []
       for (const i of this.urlSet) {
         list.push(i)
       }
       this.urlList = list
+      // 将每个 html 块的 body 滚动到底部，展示最新生成的内容
+      this.$refs['markdown-it-vue-container']
+        .querySelectorAll('.md-html-body')
+        .forEach((body) => {
+          body.scrollTop = body.scrollHeight
+        })
       // emit event
       this.$emit('render-complete')
     },
@@ -240,7 +317,10 @@ export default {
     },
     hdlClick(e) {
       if (this.viewer && e.target.tagName == 'IMG') {
-        if (e.target.closest('.mermaid-error') || e.target.dataset.noPreview === 'true') {
+        if (
+          e.target.closest('.mermaid-error') ||
+          e.target.dataset.noPreview === 'true'
+        ) {
           return
         }
         this.index = this.urlList.indexOf(e.target.src) || 0
@@ -249,6 +329,34 @@ export default {
     },
     closeViewer() {
       this.showViewer = false
+    },
+    startHtmlSpin() {
+      if (this.htmlSpinRafId) {
+        cancelAnimationFrame(this.htmlSpinRafId)
+      }
+      let lastTs = performance.now()
+      const tick = (now) => {
+        const delta = now - lastTs
+        lastTs = now
+        this.htmlSpinAngle += (delta / 1000) * 360
+        const container = this.$refs['markdown-it-vue-container']
+        if (container) {
+          container
+            .querySelectorAll('.md-html[data-loading="true"] .md-html-spinner')
+            .forEach((spinner) => {
+              spinner.style.transform = `rotate(${this.htmlSpinAngle}deg)`
+            })
+        }
+        this.htmlSpinRafId = requestAnimationFrame(tick)
+      }
+      this.htmlSpinRafId = requestAnimationFrame(tick)
+    },
+    stopHtmlSpin() {
+      if (this.htmlSpinRafId) {
+        cancelAnimationFrame(this.htmlSpinRafId)
+        this.htmlSpinRafId = null
+      }
+      this.htmlSpinAngle = 0
     },
   },
 }
@@ -316,9 +424,164 @@ export default {
 }
 
 .mermaid-error {
-  height: 70px;
+  height: 120px;
+  margin-bottom: 10px;
   img {
     height: 100%;
   }
+}
+
+.md-html {
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  max-height: 650px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.md-html-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #f6f8fa;
+  border-bottom: 1px solid #e1e4e8;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  font-size: 12px;
+  color: #24292e;
+}
+
+.md-html-summary-left {
+  display: flex;
+  align-items: center;
+}
+
+.md-html-status {
+  display: flex;
+  align-items: center;
+}
+
+.md-html-loading,
+.md-html-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.md-html-loading {
+  display: none;
+}
+
+.md-html[data-loading="true"] .md-html-loading {
+  display: inline-flex;
+}
+
+.md-html[data-loading="true"] .md-html-done {
+  display: none;
+}
+
+.md-html[data-loading="true"] .md-html-actions,
+.md-html[data-loading="true"] .md-html-icon {
+  display: none;
+}
+
+.md-html-done svg {
+  stroke: #16a34a;
+  border: 1px solid #16a34a;
+  border-radius: 50%;
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+.md-html-icon {
+  transition: transform 0.2s ease;
+  margin-left: 4px;
+  transform: rotate(180deg);
+}
+
+.md-html.collapsed .md-html-icon {
+  transform: rotate(0deg);
+}
+
+.md-html-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.md-html-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #d1d5da;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #586069;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.md-html-actions button:hover {
+  background-color: #f3f4f6;
+  border-color: #bbb;
+  color: #24292e;
+}
+
+.md-html-actions button:active {
+  background-color: #e5e7eb;
+}
+
+.md-html-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #586069;
+  cursor: pointer;
+}
+
+.md-html-action:hover {
+  color: #24292e;
+}
+
+.md-html-body {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+
+.md-html.collapsed .md-html-body {
+  display: none;
+}
+
+.md-html-source {
+  margin: 0;
+  border-top: 1px solid #e1e4e8;
+  overflow: visible;
+  white-space: pre !important;
+  word-wrap: normal !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.md-html-source code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #24292e;
+  white-space: pre;
+  background: none;
+  display: inline-block;
+  background-color: #f6f8fa;
+  min-width: 100%;
+  padding: 16px;
 }
 </style>
