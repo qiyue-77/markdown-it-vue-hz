@@ -108,7 +108,6 @@ export default {
   watch: {
     streamDone(val) {
       if (!val) return
-      this.stopHtmlSpin()
       this.$nextTick(() => {
         const container = this.$refs['markdown-it-vue-container']
         if (!container) return
@@ -134,7 +133,6 @@ export default {
                 }
                 case 'html':
                   this.runderHtml(val)
-                  this.startHtmlSpin()
                   break
                 default:
                   break
@@ -192,8 +190,6 @@ export default {
       showViewer: false,
       index: 0,
       urlList: [],
-      htmlSpinAngle: 0,
-      htmlSpinRafId: null,
     }
   },
   methods: {
@@ -204,14 +200,6 @@ export default {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;')
-    },
-    htmlDecode(str) {
-      return str
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
     },
     runderHtml(val) {
       this.$refs['markdown-it-vue-container'].innerHTML = this.md.render(val)
@@ -270,8 +258,12 @@ export default {
           if (this.streamDone) {
             element.removeAttribute('data-loading')
           }
-          const sourceEl = element.querySelector('.md-html-source code')
-          const rawHtml = sourceEl ? sourceEl.textContent : ''
+          const encodedHtml = element.getAttribute('data-raw-html')
+          const rawHtml = encodedHtml
+            ? new TextDecoder().decode(
+                Uint8Array.from(atob(encodedHtml), (c) => c.charCodeAt(0))
+              )
+            : ''
           const previewBtn = element.querySelector('.md-html-preview')
           if (previewBtn) {
             previewBtn.addEventListener('click', (e) => {
@@ -286,13 +278,9 @@ export default {
               this.$emit('html-download', rawHtml)
             })
           }
-          const header = element.querySelector('.md-html-header')
-          if (header) {
-            header.addEventListener('click', (e) => {
-              if (e.target.closest('.md-html-actions')) return
-              element.classList.toggle('collapsed')
-            })
-          }
+          element.querySelectorAll('img').forEach((img) => {
+            img.dataset.noPreview = 'true'
+          })
         })
 
       let list = []
@@ -300,12 +288,6 @@ export default {
         list.push(i)
       }
       this.urlList = list
-      // 将每个 html 块的 body 滚动到底部，展示最新生成的内容
-      this.$refs['markdown-it-vue-container']
-        .querySelectorAll('.md-html-body')
-        .forEach((body) => {
-          body.scrollTop = body.scrollHeight
-        })
       // emit event
       this.$emit('render-complete')
     },
@@ -317,10 +299,7 @@ export default {
     },
     hdlClick(e) {
       if (this.viewer && e.target.tagName == 'IMG') {
-        if (
-          e.target.closest('.mermaid-error') ||
-          e.target.dataset.noPreview === 'true'
-        ) {
+        if (e.target.dataset.noPreview === 'true') {
           return
         }
         this.index = this.urlList.indexOf(e.target.src) || 0
@@ -329,34 +308,6 @@ export default {
     },
     closeViewer() {
       this.showViewer = false
-    },
-    startHtmlSpin() {
-      if (this.htmlSpinRafId) {
-        cancelAnimationFrame(this.htmlSpinRafId)
-      }
-      let lastTs = performance.now()
-      const tick = (now) => {
-        const delta = now - lastTs
-        lastTs = now
-        this.htmlSpinAngle += (delta / 1000) * 360
-        const container = this.$refs['markdown-it-vue-container']
-        if (container) {
-          container
-            .querySelectorAll('.md-html[data-loading="true"] .md-html-spinner')
-            .forEach((spinner) => {
-              spinner.style.transform = `rotate(${this.htmlSpinAngle}deg)`
-            })
-        }
-        this.htmlSpinRafId = requestAnimationFrame(tick)
-      }
-      this.htmlSpinRafId = requestAnimationFrame(tick)
-    },
-    stopHtmlSpin() {
-      if (this.htmlSpinRafId) {
-        cancelAnimationFrame(this.htmlSpinRafId)
-        this.htmlSpinRafId = null
-      }
-      this.htmlSpinAngle = 0
     },
   },
 }
@@ -432,156 +383,114 @@ export default {
 }
 
 .md-html {
-  border: 1px solid #e1e4e8;
-  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 480px;
+  background-color: #F7F8FA;
+  border-radius: 12px;
+  padding: 12px 24px;
   margin-bottom: 16px;
-  max-height: 650px;
-  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.md-html-left {
   display: flex;
   flex-direction: column;
 }
 
-.md-html-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background-color: #f6f8fa;
-  border-bottom: 1px solid #e1e4e8;
-  flex-shrink: 0;
-  cursor: pointer;
-  user-select: none;
-  font-size: 12px;
-  color: #24292e;
+.md-html-status-text {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
 }
 
-.md-html-summary-left {
-  display: flex;
-  align-items: center;
+.md-html-status-loading {
+  color: #333;
 }
 
-.md-html-status {
-  display: flex;
-  align-items: center;
+.md-html-status-complete {
+  color: #239545;
 }
 
-.md-html-loading,
-.md-html-done {
+.md-html-check {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-weight: 600;
-}
-
-.md-html-loading {
-  display: none;
-}
-
-.md-html[data-loading="true"] .md-html-loading {
-  display: inline-flex;
-}
-
-.md-html[data-loading="true"] .md-html-done {
-  display: none;
-}
-
-.md-html[data-loading="true"] .md-html-actions,
-.md-html[data-loading="true"] .md-html-icon {
-  display: none;
-}
-
-.md-html-done svg {
-  stroke: #16a34a;
-  border: 1px solid #16a34a;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #239545;
   border-radius: 50%;
-  padding: 2px;
-  box-sizing: border-box;
-}
-
-.md-html-icon {
-  transition: transform 0.2s ease;
+  color: #239545;
+  font-size: 12px;
+  line-height: 1;
   margin-left: 4px;
-  transform: rotate(180deg);
+  vertical-align: middle;
 }
 
-.md-html.collapsed .md-html-icon {
-  transform: rotate(0deg);
+.md-html-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.md-html-skeleton-line1 {
+  width: 180px;
+  height: 20px;
+  background-color: #E8ECF0;
+  border-radius: 4px;
+}
+
+.md-html-skeleton-line2 {
+  width: 278px;
+  height: 66px;
+  background-color: #E8ECF0;
+  border-radius: 4px;
 }
 
 .md-html-actions {
   display: flex;
-  align-items: center;
   gap: 8px;
+  margin-top: 20px;
 }
 
 .md-html-actions button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid #d1d5da;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #586069;
+  gap: 8px;
+  height: 30px;
+  padding: 0 16px;
+  border-radius: 6px;
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  transition: all 0.2s;
 }
 
-.md-html-actions button:hover {
-  background-color: #f3f4f6;
-  border-color: #bbb;
-  color: #24292e;
+.md-html-preview img,
+.md-html-download img {
+  width: 16px;
+  height: 16px;
+  display: block;
+  background-color: transparent !important;
 }
 
-.md-html-actions button:active {
-  background-color: #e5e7eb;
+.md-html:not([data-loading="true"]) .md-html-actions button {
+  background-color: #1F71FF;
+  border-color: #1F71FF;
+  color: #fff;
 }
 
-.md-html-action {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: #586069;
-  cursor: pointer;
+.md-html-right {
+  flex-shrink: 0;
+  margin-left: 24px;
 }
 
-.md-html-action:hover {
-  color: #24292e;
-}
-
-.md-html-body {
-  flex: 1;
-  overflow: auto;
-  min-height: 0;
-}
-
-.md-html.collapsed .md-html-body {
-  display: none;
-}
-
-.md-html-source {
-  margin: 0;
-  border-top: 1px solid #e1e4e8;
-  overflow: visible;
-  white-space: pre !important;
-  word-wrap: normal !important;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.md-html-source code {
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  font-size: 12px;
-  line-height: 1.5;
-  color: #24292e;
-  white-space: pre;
-  background: none;
-  display: inline-block;
-  background-color: #f6f8fa;
-  min-width: 100%;
-  padding: 16px;
+.md-html-right-img {
+  width: 120px;
+  height: auto;
+  display: block;
+  background-color: transparent !important;
 }
 </style>
