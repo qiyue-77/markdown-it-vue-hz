@@ -9,11 +9,11 @@
       <textarea class="md-text" rows="10" v-model="content" />
       <markdown-it-vue
         class="md-body"
-        :content="flowData.complete"
+        :content="content"
         :options="options"
         ref="markdown"
         :codeBlockType="flowData.codeBlockType"
-        :streamDone="flowData.streamDone"
+        :streamDone="false"
         @html-preview="handleHtmlPreview"
         @html-download="handleHtmlDownload"
       />
@@ -50,8 +50,8 @@ export default {
       echart2:
         '```echarts\n{\n  "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},\n  "xAxis": {\n    "type": "category",\n    "data": ["通讯次数", "出入境", "酒店住宿", "交通轨迹"]\n  },\n  "yAxis": {"type": "value"},\n  "series": [\n    {\n      "data": [118, 5, 22, 45],\n      "type": "bar",\n      "itemStyle": {"color": "#36a2eb"}\n    }\n  ]\n}\n```',
       content:
-        '```mermaid\ngraph TD\n    A[统计工单数量] --> B[筛选近三日]\n    B --> C[按热力站聚合]\n    C --> D[排序取前五]\n    D --> E[获取运行工况]\n    E --> F[分析一次参数]\n    F --> G[评估运行状态]\n```\n![风景照片](https://example.com/image.jpg "美丽的山景")',
-      str: '<attempt_completion>\n<result>```mermaid\ngraph TD\n    Start[分析开始] --> Understand[理解分析需求]\n    Understand --> Focus[聚焦运行工况]\n    Focus --> Judge{判断分析方向}\n    Judge -->|参数监测| Analyze1[一次网参数分析]\n    Judge -->|用户感知| Analyze2[室温与工单分析]\n    Judge -->|环境影响| Analyze3[室外气象关联]\n    Analyze1 --> Extract1[提取压力温度数据]\n    Analyze2 --> Extract2[提取室温工单数据]\n    Analyze3 --> Extract3[提取气象数据]\n    Extract1 --> PlanQuery1[规划运行参数查询]\n    Extract2 --> PlanQuery2[规划室温工单查询]\n    Extract3 --> PlanQuery3[规划气象数据查询]\n    PlanQuery1 --> Final[生成完整查询规划]\n    PlanQuery2 --> Final\n    PlanQuery3 --> Final\n```\n\n# 第二阶段：查询任务规划\n\n## 分析目标\n为全面掌握太阳宫新区站的运行状态，制定以下数据查询规划，旨在从设备运行、用户室温和服务响应三个维度进行综合研判。\n\n## 具体查询任务\n\n#### 任务1：一次网运行参数查询\n- **业务目标**： 验证热力站一次网关键运行参数是否在安全、高效区间内。\n- **数据表**： `ubd_sayy_dm_subject.dm_d_sayy_station_operation_conditions_5min_i`\n- **查询内容**： 查询太阳宫新区站在最近3天内的5分钟频率一次供水压力、一次回水压力、一次供水温度、一次回水温度。\n- **查询条件**： \n  - station_name = "太阳宫新区站"\n  - data_time >= date_sub(current_date, 3)\n- **预期输出**： 原始数据集，用于计算并评估一次供回水压差、温差及回水温度的合理性。\n\n#### 任务2：室温监控指标查询\n- **业务目标**： 量化评估供热服务质量，识别供热不达标区域。\n- **数据表**： `ubd_sayy_dm_subject.dm_d_sayy_room_temp_monitor_15min_i`\n- **查询内容**： 查询太阳宫新区站所辖用户在最近3天内的15分钟频率室温数据。\n- **查询条件**： \n  - station_name = "太阳宫新区站"\n  - data_time >= date_sub(current_date, 3)\n- **预期输出**： 汇总计算出的日均合格率、低温率、高温率、平均室温等指标，形成趋势图表。\n\n#### 任务3：工单业务情况查询\n- **业务目标**： 分析用户诉求，评估服务效率和问题集中点。\n- **数据表**： `ubd_khfw_dm_kfpt.dm_h_khfw_sheet_info_i`\n- **查询内容**： 查询与太阳宫新区站相关的所有工单记录。\n- **查询条件**： \n  - related_station = "太阳宫新区站"\n  - create_time >= date_sub(current_date, 7)\n- **预期输出**： 工单总数、日趋势图、报事类型TOP5、一次解决率、平均响应时长。\n\n#### 任务4：室外气象数据查询\n- **业务目标**： 为运行参数调整提供外部环境依据。\n- **数据表**： `iceberg_hms_on_hdfs_catalog.ubd_sayy_ods_swqx.ods_d_sayy_qy_short12_i`\n- **查询内容**： 查询太阳宫区域最近3天的实时气温。\n- **查询条件**： \n  - name like \'%太阳宫%\' or area_code = \'CY\'\n  - record_time >= date_sub(current_date, 3)\n- **预期输出**： 日均气温、最低气温、最高气温的时间序列数据。\n</result>\n</attempt_completion>',
+        '```mermaid---\ntitle: Hello Title\nconfig:\n  theme: base\n  themeVariables:\n    primaryColor: "#00ff00"\n---\ngraph TD\n    A[统计工单数量] --> B[筛选近三日]\n    B --> C[按热力站聚合]\n    C --> D[排序取前五]\n    D --> E[获取运行工况]\n    E --> F[分析一次参数]\n    F --> G[评估运行状态]\n```',
+      str: "\n\n好的，我来分析广东省在全国范围内出现异常高增长的案件类型。我将使用数据问答工具查询案件基本信息分类表的数据。\n\n<use_mcp_tool>\n<server_name>小智数据问答</server_name>\n<tool_name>53_mcplink_data_answer_get_dmc_data_tbdata</tool_name>\n<arguments>\n{\n    \"searchParams\": {\n        \"query\": \"统计广东省各类案件类型的案件数量，按年份分组，并与全国各类案件数量进行对比，找出广东省增长异常高的案件类型\",\n        \"tbIds\": \"tb_f1cf411f82a34ce793800725c9f6a865\"\n    }\n}\n</arguments>\n",
       redDocumentMd: '',
       htmlContent:
         '```html\n<div style="width:210mm;min-height:297mm;background:#fff;padding:37mm 26mm 35mm 28mm;position:relative;box-shadow:0 0 10px rgba(0,0,0,0.1);font-family:仿宋,FangSong_GB2312,SimSun,serif;margin:0 auto;">\n  <div style="width:158.3mm;font-family:黑体,sans-serif;margin-bottom:5mm;">\n    <div>非密★2026年</div>\n    <div>一般</div>\n  </div>\n\n  <h1 style="font-family:方正小标宋简体,小标宋体,华文中宋,SimSun;font-size:45pt;color:#FF0000;text-align:center;margin:0 0 10mm 0;">政工会会议纪要</h1>\n\n  <div style="width:157.5mm;margin-bottom:10mm;">\n    <div style="text-align:center;margin-bottom:2mm;">〔2026〕XX号</div>\n    <div style="display:flex;justify-content:space-between;">\n      <span>党委行政办公室</span>\n      <span>2026年5月20日</span>\n    </div>\n  </div>\n\n  <h2 style="font-family:方正小标宋简体,小标宋体,华文中宋,SimSun;font-size:22pt;text-align:center;margin:10mm 0 8mm 0;">关于2026年度重点工作推进安排的会议纪要</h2>\n\n  <div style="margin-bottom:6mm;">主送：各部门、各单位</div>\n\n  <p style="font-size:16pt;text-align:justify;text-indent:2em;margin-bottom:6mm;">为进一步统一思想、明确任务、压实责任，切实推动年度各项工作落地见效，单位召开政工工作专题会议。会议全面总结前期工作开展情况，分析当前存在的问题与不足，研究部署下一阶段重点任务。相关负责同志及各部门负责人参加会议。</p>\n  <p style="font-size:16pt;text-align:justify;text-indent:2em;margin-bottom:6mm;">会议议定：一是强化理论武装，持续抓好思想政治教育，提升队伍整体素质；二是细化工作举措，对照年度目标逐项分解任务，明确时限要求；三是加强作风建设，严明工作纪律，提高执行效能；四是统筹安全与发展，做好风险防控，保障各项工作平稳有序。</p>\n  <p style="font-size:16pt;text-align:justify;text-indent:2em;margin-bottom:6mm;">会议要求，各部门要提高站位、密切配合、狠抓落实，及时报送工作进展，确保高质量完成全年各项目标任务。</p>\n\n  <div style="margin-top:8mm;font-size:16pt;">附件：无</div>\n\n  <table style="width:100%;border-collapse:collapse;margin-top:25mm;font-size:14pt;">\n    <tr>\n      <td style="border:1px solid #000;padding:2mm;vertical-align:middle;"></td>\n      <td colspan="4" style="border:1px solid #000;padding:2mm;vertical-align:middle;">主送：各部门、各单位</td>\n    </tr>\n    <tr>\n      <td style="border:1px solid #000;padding:2mm;vertical-align:middle;"></td>\n      <td colspan="4" style="border:1px solid #000;padding:2mm;vertical-align:middle;">抄送：相关领导</td>\n    </tr>\n    <tr>\n      <td colspan="3" style="border:1px solid #000;padding:2mm;vertical-align:middle;">XX单位</td>\n      <td colspan="2" style="border:1px solid #000;padding:2mm;vertical-align:middle;">2026年5月20日印发</td>\n    </tr>\n    <tr>\n      <td colspan="2" style="border:1px solid #000;padding:2mm;vertical-align:middle;">联系人：</td>\n      <td colspan="2" style="border:1px solid #000;padding:2mm;vertical-align:middle;">电话：</td>\n      <td style="border:1px solid #000;padding:2mm;vertical-align:middle;">共印份</td>\n    </tr>\n  </table>\n\n  <div style="position:absolute;bottom:20mm;left:50%;transform:translateX(-50%);font-size:14pt;">—1—</div>\n</div>```',
@@ -77,7 +77,7 @@ export default {
         think: '', //判断标签thinking时，将思考的流放置在此
         question: '', //判断ask_followup_question时，将问题的流放置在此
         questionList: [], //问题选择列表列表
-        complete: '',
+        complete: "",
         allMessage: '', //所有的消息流
         target: 'attempt_completion', //必须要检测到标签不然就会报错
         serverName: '', //模拟服务
@@ -100,6 +100,7 @@ export default {
   },
   created() {
     this.testStr = `<attempt_completion>\n<result>\n${this.htmlContent}\n</result>\n</attempt_completion>`
+    // this.flowData.complete = "\n本次任务一共执行了以下步骤：\n- [x] 调用MCP工具查询可用模板列表，获取到'党委会会议纪要.docx'和'政工会会议纪要.docx'两个模板\n- [x] 根据用户需求匹配最优模板，选择'党委会会议纪要.docx'作为生成依据\n- [x] 调用MCP工具获取'党委会会议纪要.docx'模板的详细解析规则，包括版式规范、字段定义和生成要求\n- [x] 根据模板要求生成符合党政机关会议纪要语体的JSON数据结构\n- [x] 将JSON数据转换为HTML格式的文档代码，确保符合公文格式规范\n\n## 分析结果\n已根据用户要求\"请以党委会会议纪要为模板写一篇标题随意的文档\"生成了完整的会议纪要文档。文档采用标准的党政机关公文格式，包含密级标识、主标题、编号信息、正文标题、主送单位、正文内容、附件标识和版记表格等完整要素。\n\n```html\n<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>党委会会议纪要</title>\n</head>\n<body style=\"margin: 0; padding: 0; font-family: '仿宋', 'FangSong', serif; background-color: #ffffff;\">\n    <div style=\"width: 595px; margin: 0 auto; padding: 0; box-sizing: border-box;\">\n        <!-- 密级标识 -->\n        <table style=\"width: 100%; border-collapse: collapse; margin-bottom: 10px;\">\n            <tr>\n                <td align=\"left\" style=\"width: 50%; padding: 0;\">\n                    <div style=\"font-size: 16pt; font-weight: bold; color: #000000;\">内部</div>\n                </td>\n                <td align=\"right\" style=\"width: 50%; padding: 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">2026年6月10日</div>\n                </td>\n            </tr>\n        </table>\n\n        <!-- 主标题 -->\n        <div style=\"text-align: center; margin: 20px 0 30px 0;\">\n            <div style=\"font-size: 22pt; font-weight: bold; color: #000000; line-height: 1.5;\">党委会会议纪要</div>\n        </div>\n\n        <!-- 编号信息 -->\n        <table style=\"width: 100%; border-collapse: collapse; margin-bottom: 20px;\">\n            <tr>\n                <td align=\"left\" style=\"width: 33.33%; padding: 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">〔2026〕第15号</div>\n                </td>\n                <td align=\"center\" style=\"width: 33.33%; padding: 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">党委办公室</div>\n                </td>\n                <td align=\"right\" style=\"width: 33.33%; padding: 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">签发人：张书记</div>\n                </td>\n            </tr>\n        </table>\n\n        <!-- 正文标题 -->\n        <div style=\"text-align: center; margin: 25px 0 20px 0;\">\n            <div style=\"font-size: 18pt; font-weight: bold; color: #000000; line-height: 1.5;\">关于近期重点工作部署的会议纪要</div>\n        </div>\n\n        <!-- 主送单位 -->\n        <div style=\"margin: 0 0 25px 0;\">\n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8;\">各党支部、各部门：</div>\n        </div>\n\n        <!-- 正文内容 -->\n        <div style=\"margin: 0 0 30px 0;\">\n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt;\">\n                2026年6月10日下午，党委会在机关三楼会议室召开会议，专题研究部署近期重点工作。会议由党委书记张三同志主持，党委副书记李四、王五，党委委员赵六、钱七、孙八等同志出席会议，办公室刘九同志列席会议并作记录。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议首先听取了各分管领导关于近期工作进展情况的汇报。李四同志汇报了思想政治建设方面的工作，王五同志汇报了组织建设情况，赵六同志汇报了纪律检查工作，钱七同志汇报了宣传工作进展，孙八同志汇报了统战工作情况。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议认为，今年以来，在上级党委的正确领导下，各党支部、各部门认真贯彻落实党的路线方针政策，各项工作取得积极进展。思想政治建设不断加强，组织建设稳步推进，纪律检查工作成效明显，宣传工作有声有色，统战工作扎实有效。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议指出，当前工作中仍存在一些需要改进的地方：一是理论学习深度有待加强；二是部分工作落实不够到位；三是创新意识需要进一步提升。会议要求各党支部、各部门要高度重视这些问题，采取有效措施加以解决。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议研究决定：\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; margin-left: 28pt; margin-top: 10px;\">\n                一、加强理论学习。各党支部要组织党员干部深入学习党的创新理论，每月至少开展一次专题学习，确保学习效果。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; margin-left: 28pt; margin-top: 10px;\">\n                二、推进工作落实。各部门要按照年度工作计划，细化工作措施，明确责任分工，确保各项工作落到实处。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; margin-left: 28pt; margin-top: 10px;\">\n                三、鼓励工作创新。要支持各部门在工作中大胆探索，勇于创新，形成一批可复制、可推广的经验做法。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议强调，各党支部、各部门要进一步提高政治站位，增强责任意识，以更加饱满的热情、更加务实的作风，推动各项工作再上新台阶。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议要求，办公室要加强对会议决定事项的督促检查，确保各项决策部署落到实处。各党支部、各部门要将本次会议精神及时传达到全体党员干部，并认真抓好贯彻落实。\n            </div>\n        </div>\n\n        <!-- 附件标识 -->\n        <div style=\"margin: 0 0 20px 0;\">\n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8;\">附件：1. 近期重点工作任务分解表</div>\n        </div>\n\n        <!-- 版记表格 -->\n        <table style=\"width: 100%; border-collapse: collapse; margin-top: 40px; border-top: 1px solid #000000;\">\n            <tr>\n                <td align=\"left\" style=\"width: 50%; padding: 10px 0 0 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">主题词：党委会 会议纪要 工作部署</div>\n                </td>\n                <td align=\"right\" style=\"width: 50%; padding: 10px 0 0 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">共印30份</div>\n                </td>\n            </tr>\n            <tr>\n                <td align=\"left\" style=\"padding: 5px 0 0 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">抄送：上级党委，存档</div>\n                </td>\n                <td align=\"right\" style=\"padding: 5px 0 0 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">党委办公室 2026年6月10日印发</div>\n                </td>\n            </tr>\n        </table>\n    </div>\n</body>\n</html>\n```\n"
   },
   mounted() {
     this.redDocumentMd = `
@@ -296,7 +297,7 @@ export default {
             break
           //解析question第二层的的问题标签,并且将标签转为数组给问题，需要做非空判断，因为cline遇到过没有问题的情况
           case '/options':
-            jsonData && (item.questionList = JSON.parse(jsonData))
+            jsonData && (item.questionList = JSON.parse(jsonData.trim()))
             jsonData = ''
             target = ''
             break
@@ -304,7 +305,7 @@ export default {
             handleBuffer('question')
             break
           case '/arguments':
-            jsonData && (item.arguments = JSON.parse(jsonData))
+            jsonData && (item.arguments = JSON.parse(jsonData.trim()))
             jsonData = ''
             target = ''
             break
@@ -652,9 +653,9 @@ export default {
     },
     onTime() {
       setInterval(() => {
-        // if (this.index < this.testStr.length) {
+        if (this.index < this.testStr.length) {
           this.onclick()
-        // }
+        }
       }, 50)
     },
     // 2. 解码：还原原始字符串

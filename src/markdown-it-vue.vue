@@ -493,4 +493,37 @@ export default {
   display: block;
   background-color: transparent !important;
 }
+
+/* 生成中状态 (data-loading="true") */
+.md-html[data-loading="true"] .md-html-status-complete,
+.md-html[data-loading="true"] .md-html-actions,
+.md-html[data-loading="true"] .md-html-right-complete {
+  display: none !important;
+}
+
+.md-html[data-loading="true"] .md-html-status-loading,
+.md-html[data-loading="true"] .md-html-right-loading {
+  display: block;
+}
+
+.md-html[data-loading="true"] .md-html-skeleton {
+  display: flex;
+}
+
+/* 生成完成状态 (无 data-loading) */
+.md-html:not([data-loading="true"]) .md-html-status-loading,
+.md-html:not([data-loading="true"]) .md-html-skeleton,
+.md-html:not([data-loading="true"]) .md-html-right-loading {
+  display: none !important;
+}
+
+.md-html:not([data-loading="true"]) .md-html-status-complete,
+.md-html:not([data-loading="true"]) .md-html-actions,
+.md-html:not([data-loading="true"]) .md-html-right-complete {
+  display: block;
+}
+
+.md-html:not([data-loading="true"]) .md-html-actions {
+  display: flex;
+}
 </style>
