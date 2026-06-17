@@ -20,3 +20,6 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
+
+# Claude worktrees and session files
+.claude/

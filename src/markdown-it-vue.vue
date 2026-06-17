@@ -111,9 +111,11 @@ export default {
       this.$nextTick(() => {
         const container = this.$refs['markdown-it-vue-container']
         if (!container) return
-        container.querySelectorAll('.md-html[data-loading="true"]').forEach((el) => {
-          el.removeAttribute('data-loading')
-        })
+        container
+          .querySelectorAll('.md-html[data-loading="true"]')
+          .forEach((el) => {
+            el.removeAttribute('data-loading')
+          })
       })
     },
     content: {
@@ -201,7 +203,7 @@ export default {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;')
     },
-    runderHtml(val) {
+    async runderHtml(val) {
       this.$refs['markdown-it-vue-container'].innerHTML = this.md.render(val)
       // render echarts
       this.$refs['markdown-it-vue-container']
@@ -218,8 +220,7 @@ export default {
       // 使用新版 mermaid 的异步渲染和验证
       const mermaidNodes =
         this.$refs['markdown-it-vue-container'].querySelectorAll('.mermaid')
-      mermaidNodes.forEach(async (node) => {
-        // 从 data-mermaid-code 属性获取编码的代码
+      for (const node of mermaidNodes) {
         const encodedCode = node.textContent
         try {
           if (encodedCode) {
@@ -237,7 +238,7 @@ export default {
                 error.message
               )}"> <img src="${mermaidError}" alt="" data-no-preview="true" style="height: 100%;"></div>`)
         }
-      })
+      }
       this.$refs['markdown-it-vue-container']
         .querySelectorAll('.md-flowchart')
         .forEach((element) => {
@@ -314,6 +315,24 @@ export default {
 </script>
 
 <style lange="scss">
+.markdown-body .highlight pre,
+.markdown-body pre {
+  background-color: rgba(32, 28, 46, 0.2);
+}
+svg [class*='line-plot-'] path {
+  stroke-width: 4px; /* 改成你想要的粗细 */
+}
+svg [class*='bar-plot-'] text {
+  font-size: 16px;
+}
+svg [class*='bar-plot-'] rect {
+  fill:#666EEC;
+}
+svg .pieOuterCircle,
+svg .pieCircle {
+  stroke: transparent !important;
+  opacity: 1!important;
+}
 .markdown-it-vue-alter-info {
   border: 1px solid #91d5ff;
   background-color: #e6f7ff;
@@ -387,7 +406,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   width: 480px;
-  background-color: #F7F8FA;
+  background-color: #f7f8fa;
   border-radius: 12px;
   padding: 12px 24px;
   margin-bottom: 16px;
@@ -438,14 +457,14 @@ export default {
 .md-html-skeleton-line1 {
   width: 180px;
   height: 20px;
-  background-color: #E8ECF0;
+  background-color: #e8ecf0;
   border-radius: 4px;
 }
 
 .md-html-skeleton-line2 {
   width: 278px;
   height: 66px;
-  background-color: #E8ECF0;
+  background-color: #e8ecf0;
   border-radius: 4px;
 }
 
@@ -476,9 +495,9 @@ export default {
   background-color: transparent !important;
 }
 
-.md-html:not([data-loading="true"]) .md-html-actions button {
-  background-color: #1F71FF;
-  border-color: #1F71FF;
+.md-html:not([data-loading='true']) .md-html-actions button {
+  background-color: #1f71ff;
+  border-color: #1f71ff;
   color: #fff;
 }
 
@@ -495,35 +514,35 @@ export default {
 }
 
 /* 生成中状态 (data-loading="true") */
-.md-html[data-loading="true"] .md-html-status-complete,
-.md-html[data-loading="true"] .md-html-actions,
-.md-html[data-loading="true"] .md-html-right-complete {
+.md-html[data-loading='true'] .md-html-status-complete,
+.md-html[data-loading='true'] .md-html-actions,
+.md-html[data-loading='true'] .md-html-right-complete {
   display: none !important;
 }
 
-.md-html[data-loading="true"] .md-html-status-loading,
-.md-html[data-loading="true"] .md-html-right-loading {
+.md-html[data-loading='true'] .md-html-status-loading,
+.md-html[data-loading='true'] .md-html-right-loading {
   display: block;
 }
 
-.md-html[data-loading="true"] .md-html-skeleton {
+.md-html[data-loading='true'] .md-html-skeleton {
   display: flex;
 }
 
 /* 生成完成状态 (无 data-loading) */
-.md-html:not([data-loading="true"]) .md-html-status-loading,
-.md-html:not([data-loading="true"]) .md-html-skeleton,
-.md-html:not([data-loading="true"]) .md-html-right-loading {
+.md-html:not([data-loading='true']) .md-html-status-loading,
+.md-html:not([data-loading='true']) .md-html-skeleton,
+.md-html:not([data-loading='true']) .md-html-right-loading {
   display: none !important;
 }
 
-.md-html:not([data-loading="true"]) .md-html-status-complete,
-.md-html:not([data-loading="true"]) .md-html-actions,
-.md-html:not([data-loading="true"]) .md-html-right-complete {
+.md-html:not([data-loading='true']) .md-html-status-complete,
+.md-html:not([data-loading='true']) .md-html-actions,
+.md-html:not([data-loading='true']) .md-html-right-complete {
   display: block;
 }
 
-.md-html:not([data-loading="true"]) .md-html-actions {
+.md-html:not([data-loading='true']) .md-html-actions {
   display: flex;
 }
 </style>
