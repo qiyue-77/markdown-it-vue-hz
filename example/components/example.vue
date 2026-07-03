@@ -14,6 +14,7 @@
         ref="markdown"
         :codeBlockType="flowData.codeBlockType"
         :streamDone="flowData.streamStop"
+        theme="purple"
         @html-preview="handleHtmlPreview"
         @html-download="handleHtmlDownload"
       />
@@ -50,7 +51,93 @@ export default {
       echart2:
         '```echarts\n{\n  "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},\n  "xAxis": {\n    "type": "category",\n    "data": ["通讯次数", "出入境", "酒店住宿", "交通轨迹"]\n  },\n  "yAxis": {"type": "value"},\n  "series": [\n    {\n      "data": [118, 5, 22, 45],\n      "type": "bar",\n      "itemStyle": {"color": "#36a2eb"}\n    }\n  ]\n}\n```',
       content:
-        '```mermaid\npie\n    title 月度销售占比\n    "1月": 35\n    "2月": 60\n    "3月": 45\n    "4月": 80\n    "5月": 55\n```',
+        `- 整体状态：通过
+
+- 二次供水温度：通过，已找到结构化证据
+
+\`\`\`echarts
+{
+  "width": 800,
+  "height": 420,
+  "tooltip": {
+    "trigger": "axis",
+    "backgroundColor": "#272237",
+    "borderColor": "#8164FF",
+    "borderWidth": 1,
+    "textStyle": { "color": "#FFFFFF", "fontSize": 14, "fontWeight": 500 }
+  },
+  "legend": {
+    "data": ["推荐二次供温(℃)", "室外温度(℃)"],
+    "top": 10,
+    "textStyle": { "color": "rgba(255, 255, 255, 0.7)" }
+  },
+  "grid": {
+    "left": 70,
+    "right": 70,
+    "bottom": 70,
+    "top": 70
+  },
+  "xAxis": {
+    "type": "category",
+    "boundaryGap": false,
+    "data": ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"],
+    "axisLine": { "show": true, "lineStyle": { "color": "rgba(255, 255, 255, 0.32)", "width": 2 } },
+    "axisTick": { "show": false },
+    "axisLabel": { "show": true, "color": "rgba(255, 255, 255, 0.7)", "interval": 0, "rotate": 45 }
+  },
+  "yAxis": [
+    {
+      "type": "value",
+      "name": "供温(℃)",
+      "nameTextStyle": { "color": "rgba(255, 255, 255, 0.7)" },
+      "min": 0,
+      "max": 60,
+      "position": "left",
+      "axisLine": { "show": false },
+      "axisLabel": { "show": true, "color": "rgba(255, 255, 255, 0.7)" },
+      "axisTick": { "show": false },
+      "splitLine": { "lineStyle": { "color": "rgba(255, 255, 255, 0.16)" } }
+    },
+    {
+      "type": "value",
+      "name": "室外温(℃)",
+      "nameTextStyle": { "color": "rgba(255, 255, 255, 0.7)" },
+      "min": -4,
+      "max": 10,
+      "interval": 2,
+      "position": "right",
+      "axisLine": { "show": false },
+      "axisLabel": { "show": true, "color": "rgba(255, 255, 255, 0.7)" },
+      "axisTick": { "show": false },
+      "splitLine": { "lineStyle": { "color": "rgba(255, 255, 255, 0.16)" } }
+    }
+  ],
+  "series": [
+    {
+      "name": "推荐二次供温(℃)",
+      "type": "line",
+      "yAxisIndex": 0,
+      "data": [53.2, 53.5, 50.1, 52.4, 52.0, 53.0, 52.8, 53.5, 52.9, 51.2, 50.0, 48.5, 46.8, 46.5, 46.8, 47.2, 47.5, 48.0, 49.0, 49.5, 50.0, 50.3, 50.8, 51.2],
+      "symbolSize": 8,
+      "lineStyle": { "color": "#EDE654", "width": 3 },
+      "itemStyle": { "color": "#EDE654" },
+      "areaStyle": { "origin": "start", "color": { "type": "linear", "x": 0, "y": 0, "x2": 0, "y2": 1, "colorStops": [{ "offset": 0, "color": "#ede65466" }, { "offset": 1, "color": "#ede65400" }] } },
+      "smooth": false
+    },
+    {
+      "name": "室外温度(℃)",
+      "type": "line",
+      "yAxisIndex": 1,
+      "data": [-2.1, -2.3, 0.5, 3.2, 1.8, 0.2, 1.5, 2.0, 3.5, 4.2, 5.5, 6.8, 7.5, 8.8, 9.2, 8.5, 7.8, 6.5, 4.2, 3.0, 2.8, 2.5, 1.8, 0.5],
+      "symbolSize": 8,
+      "lineStyle": { "color": "#666EEC", "width": 3 },
+      "itemStyle": { "color": "#666EEC" },
+      "areaStyle": { "origin": "start", "color": { "type": "linear", "x": 0, "y": 0, "x2": 0, "y2": 1, "colorStops": [{ "offset": 0, "color": "#666eec66" }, { "offset": 1, "color": "#666eec00" }] } },
+      "smooth": true
+    }
+  ]
+}
+\`\`\``,
       str: "\n\n好的，我来分析广东省在全国范围内出现异常高增长的案件类型。我将使用数据问答工具查询案件基本信息分类表的数据。\n\n<use_mcp_tool>\n<server_name>小智数据问答</server_name>\n<tool_name>53_mcplink_data_answer_get_dmc_data_tbdata</tool_name>\n<arguments>\n{\n    \"searchParams\": {\n        \"query\": \"统计广东省各类案件类型的案件数量，按年份分组，并与全国各类案件数量进行对比，找出广东省增长异常高的案件类型\",\n        \"tbIds\": \"tb_f1cf411f82a34ce793800725c9f6a865\"\n    }\n}\n</arguments>\n",
       redDocumentMd: '',
       htmlContent:

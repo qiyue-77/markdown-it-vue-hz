@@ -40,7 +40,9 @@ import MarkdownItImage from './markdown-it-image'
 import MarkdownItDocument from './markdown-it-document'
 import 'github-markdown-css'
 import 'markdown-it-latex/dist/index.css'
-import mermaidError from './images/mermaid-error.png'
+import errorLight from './images/error-light.png'
+import errorDark from './images/error-dark.png'
+import errorPurple from './images/error-purple.png'
 
 import * as echarts from 'echarts'
 import mermaid from 'mermaid'
@@ -104,6 +106,13 @@ export default {
       type: Boolean,
       default: false,
     },
+    theme: {
+      type: String,
+      default: 'light',
+      validator(value) {
+        return ['light', 'dark', 'purple'].includes(value)
+      },
+    },
   },
   watch: {
     streamDone(val) {
@@ -111,11 +120,9 @@ export default {
       this.$nextTick(() => {
         const container = this.$refs['markdown-it-vue-container']
         if (!container) return
-        container
-          .querySelectorAll('.md-html[data-loading="true"]')
-          .forEach((el) => {
-            el.removeAttribute('data-loading')
-          })
+        container.querySelectorAll('.md-html[data-loading="true"]').forEach((el) => {
+          el.removeAttribute('data-loading')
+        })
       })
     },
     content: {
@@ -174,7 +181,7 @@ export default {
       .use(MarkdownItLatex)
       .use(MarkdownItSourceMap)
       .use(MarkdownItMermaid, optMermaid)
-      .use(MarkdownItEcharts)
+      .use(MarkdownItEcharts, { theme: this.theme })
       .use(MarkdownItHtml)
       .use(MarkdownItFlowchart)
       .use(MarkdownItLinkAttributes, linkAttributes)
@@ -195,6 +202,14 @@ export default {
     }
   },
   methods: {
+    getErrorImg() {
+      const map = {
+        light: errorLight,
+        dark: errorDark,
+        purple: errorPurple,
+      }
+      return map[this.theme] || errorLight
+    },
     htmlEncode(str) {
       return str
         .replace(/&/g, '&amp;')
@@ -210,11 +225,13 @@ export default {
         .querySelectorAll('.md-echarts')
         .forEach((element) => {
           try {
-            let options = JSON.parse(element.textContent)
+            console.log('echarts code:', element.getAttribute('data-options'))
+            let options = JSON.parse(decodeURIComponent(element.getAttribute('data-options')))
             let chart = echarts.init(element)
             chart.setOption(options)
           } catch (e) {
-            element.outerHTML = `<pre>echarts complains: ${e}</pre>`
+            const errorImg = this.getErrorImg()
+            element.outerHTML = `<div class="chart-error" data-error="${this.htmlEncode(String(e))}"><img src="${errorImg}" alt="" data-no-preview="true" style="height: 100%;"></div>`
           }
         })
       // 使用新版 mermaid 的异步渲染和验证
@@ -230,13 +247,14 @@ export default {
             })
           }
         } catch (error) {
+          const errorImg = this.getErrorImg()
           this.codeBlockType === 'mermaid'
             ? (node.outerHTML = '')
-            : (node.outerHTML = `<div  class="mermaid-error" data-code="${this.htmlEncode(
+            : (node.outerHTML = `<div class="chart-error" data-code="${this.htmlEncode(
                 encodedCode
               )}" data-error="${this.htmlEncode(
                 error.message
-              )}"> <img src="${mermaidError}" alt="" data-no-preview="true" style="height: 100%;"></div>`)
+              )}"><img src="${errorImg}" alt="" data-no-preview="true" style="height: 100%;"></div>`)
         }
       }
       this.$refs['markdown-it-vue-container']
@@ -248,7 +266,8 @@ export default {
             element.textContent = ''
             chart.drawSVG(element)
           } catch (e) {
-            element.outerHTML = `<pre>flowchart complains: ${e}</pre>`
+            const errorImg = this.getErrorImg()
+            element.outerHTML = `<div class="chart-error" data-error="${this.htmlEncode(String(e))}"><img src="${errorImg}" alt="" data-no-preview="true" style="height: 100%;"></div>`
           }
         })
 
@@ -393,7 +412,8 @@ svg .pieCircle {
   position: absolute;
 }
 
-.mermaid-error {
+.mermaid-error,
+.chart-error {
   height: 120px;
   margin-bottom: 10px;
   img {
@@ -495,7 +515,7 @@ svg .pieCircle {
   background-color: transparent !important;
 }
 
-.md-html:not([data-loading='true']) .md-html-actions button {
+.md-html:not([data-loading="true"]) .md-html-actions button {
   background-color: #1f71ff;
   border-color: #1f71ff;
   color: #fff;
