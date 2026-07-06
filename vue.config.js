@@ -37,7 +37,7 @@ module.exports = {
           type: 'asset',
           parser: {
             dataUrlCondition: {
-              maxSize: 20480 // 20KB 以下转 base64
+              maxSize: 102400 // 100KB 以下转 base64
             }
           },
           generator: {
