@@ -67,73 +67,74 @@ export default {
     "textStyle": { "color": "#FFFFFF", "fontSize": 14, "fontWeight": 500 }
   },
   "legend": {
-    "data": ["推荐二次供温(℃)", "室外温度(℃)"],
     "top": 10,
-    "textStyle": { "color": "rgba(255, 255, 255, 0.7)" }
-  },
-  "grid": {
-    "left": 70,
-    "right": 70,
-    "bottom": 70,
-    "top": 70
+    "textStyle": { "color": "#FFFFFF", "fontSize": 14, "fontWeight": 500 }
   },
   "xAxis": {
     "type": "category",
-    "boundaryGap": false,
-    "data": ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"],
+    "data": ["AAA", "BBB", "CCC", "DDD", "EEE"],
     "axisLine": { "show": true, "lineStyle": { "color": "rgba(255, 255, 255, 0.32)", "width": 2 } },
     "axisTick": { "show": false },
-    "axisLabel": { "show": true, "color": "rgba(255, 255, 255, 0.7)", "interval": 0, "rotate": 45 }
+    "axisLabel": { "show": true, "color": "rgba(255, 255, 255, 0.7)" }
   },
-  "yAxis": [
-    {
-      "type": "value",
-      "name": "供温(℃)",
-      "nameTextStyle": { "color": "rgba(255, 255, 255, 0.7)" },
-      "min": 0,
-      "max": 60,
-      "position": "left",
-      "axisLine": { "show": false },
-      "axisLabel": { "show": true, "color": "rgba(255, 255, 255, 0.7)" },
-      "axisTick": { "show": false },
-      "splitLine": { "lineStyle": { "color": "rgba(255, 255, 255, 0.16)" } }
-    },
-    {
-      "type": "value",
-      "name": "室外温(℃)",
-      "nameTextStyle": { "color": "rgba(255, 255, 255, 0.7)" },
-      "min": -4,
-      "max": 10,
-      "interval": 2,
-      "position": "right",
-      "axisLine": { "show": false },
-      "axisLabel": { "show": true, "color": "rgba(255, 255, 255, 0.7)" },
-      "axisTick": { "show": false },
-      "splitLine": { "lineStyle": { "color": "rgba(255, 255, 255, 0.16)" } }
-    }
-  ],
+  "yAxis": {
+    "type": "value",
+    "axisLine": { "show": false },
+    "axisLabel": { "show": true, "color": "rgba(255, 255, 255, 0.7)" },
+    "axisTick": { "show": false },
+    "splitLine": { "lineStyle": { "color": "rgba(255, 255, 255, 0.16)" } }
+  },
   "series": [
     {
-      "name": "推荐二次供温(℃)",
-      "type": "line",
-      "yAxisIndex": 0,
-      "data": [53.2, 53.5, 50.1, 52.4, 52.0, 53.0, 52.8, 53.5, 52.9, 51.2, 50.0, 48.5, 46.8, 46.5, 46.8, 47.2, 47.5, 48.0, 49.0, 49.5, 50.0, 50.3, 50.8, 51.2],
-      "symbolSize": 8,
-      "lineStyle": { "color": "#EDE654", "width": 3 },
-      "itemStyle": { "color": "#EDE654" },
-      "areaStyle": { "origin": "start", "color": { "type": "linear", "x": 0, "y": 0, "x2": 0, "y2": 1, "colorStops": [{ "offset": 0, "color": "#ede65466" }, { "offset": 1, "color": "#ede65400" }] } },
-      "smooth": false
+      "name": "系列一",
+      "type": "bar",
+      "barWidth": 14,
+      "data": [300, 400, 480, 580, 310],
+      "itemStyle": {
+        "borderRadius": [7, 7, 7, 7],
+        "color": {
+          "type": "linear",
+          "x": 0, "y": 0, "x2": 0, "y2": 1,
+          "colorStops": [
+            { "offset": 0, "color": "#1fbcff" },
+            { "offset": 1, "color": "#1fbcff00" }
+          ]
+        }
+      }
     },
     {
-      "name": "室外温度(℃)",
-      "type": "line",
-      "yAxisIndex": 1,
-      "data": [-2.1, -2.3, 0.5, 3.2, 1.8, 0.2, 1.5, 2.0, 3.5, 4.2, 5.5, 6.8, 7.5, 8.8, 9.2, 8.5, 7.8, 6.5, 4.2, 3.0, 2.8, 2.5, 1.8, 0.5],
-      "symbolSize": 8,
-      "lineStyle": { "color": "#666EEC", "width": 3 },
-      "itemStyle": { "color": "#666EEC" },
-      "areaStyle": { "origin": "start", "color": { "type": "linear", "x": 0, "y": 0, "x2": 0, "y2": 1, "colorStops": [{ "offset": 0, "color": "#666eec66" }, { "offset": 1, "color": "#666eec00" }] } },
-      "smooth": true
+      "name": "系列二",
+      "type": "bar",
+      "barWidth": 14,
+      "data": [540, 620, 720, 800, 540],
+      "itemStyle": {
+        "borderRadius": [7, 7, 7, 7],
+        "color": {
+          "type": "linear",
+          "x": 0, "y": 0, "x2": 0, "y2": 1,
+          "colorStops": [
+            { "offset": 0, "color": "#855dfb" },
+            { "offset": 1, "color": "#855dfb00" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "系列三",
+      "type": "bar",
+      "barWidth": 14,
+      "data": [220, 310, 400, 480, 220],
+      "itemStyle": {
+        "borderRadius": [7, 7, 7, 7],
+        "color": {
+          "type": "linear",
+          "x": 0, "y": 0, "x2": 0, "y2": 1,
+          "colorStops": [
+            { "offset": 0, "color": "#1fbcff" },
+            { "offset": 1, "color": "#1fbcff00" }
+          ]
+        }
+      }
     }
   ]
 }
@@ -186,7 +187,7 @@ export default {
     }
   },
   created() {
-    this.testStr = "<thinking>\n用户要求不调用任何工具，使用随意数据生成一个流程图，并以任务完成形式输出。根据角色定位和输出控制规则，我需要直接使用 attempt_completion 输出最终结果，因为用户明确要求不调用工具，且要求生成流程图。\n\n根据 attempt_completion 的要求，result 中必须包含：\n1. 执行步骤回顾（Markdown todolist）\n2. 分析结果（以 \"## 分析结果\" 开头）\n3. 图表规范：使用 Mermaid 生成图表，淡色主题（neutral），深色文字\n\n用户要求生成流程图，我需要创建一个简单的流程图示例，使用随意数据。\n\n由于用户明确要求不调用任何工具，我可以直接进入 attempt_completion。\n</thinking>\n\n<attempt_completion>\n<result>\n本次任务一共执行了以下步骤：\n- [x] 理解用户需求：不调用工具，使用随意数据生成流程图\n- [x] 设计流程图结构：展示一个简单的业务流程\n- [x] 使用 Mermaid 语法创建流程图\n- [x] 整合到最终输出中\n\n## 分析结果\n\n根据您的要求，我使用随意数据创建了一个简单的业务流程图，展示从需求分析到项目交付的典型流程：\n\n```mermaid\nflowchart TD\n    A[需求分析开始] --> B{需求评估}\n    B -->|通过| C[方案设计]\n    B -->|不通过| D[需求调整]\n    D --> B\n    C --> E[开发实施]\n    E --> F[测试验证]\n    F --> G{质量检查}\n    G -->|合格| H[项目交付]\n    G -->|不合格| I[问题修复]\n    I --> F\n    H --> J[流程结束]\n```\n\n> [!TIP]\n> 该流程图使用随意数据生成，展示了从需求分析到项目交付的典型业务流程，包含决策节点和反馈循环。\n\n**流程说明：**\n1. **需求分析**：项目启动阶段，明确业务需求\n2. **需求评估**：判断需求是否合理可行\n3. **方案设计**：制定详细实施方案\n4. **开发实施**：按照方案进行开发工作\n5. **测试验证**：对开发成果进行测试\n6. **质量检查**：评估项目质量是否达标\n7. **项目交付**：将合格产品交付给客户\n\n该流程图使用 Mermaid 语法绘制，采用淡色主题和深色文字，符合图表规范要求。由于使用随意数据，具体节点内容和流程可根据实际业务场景调整。\n</result>\n</attempt_completion>"
+    this.testStr = `<thinking>\n用户要求不调用任何工具，使用随意数据生成一个流程图，并以任务完成形式输出。根据角色定位和输出控制规则，我需要直接使用 attempt_completion 输出最终结果，因为用户明确要求不调用工具，且要求生成流程图。\n\n根据 attempt_completion 的要求，result 中必须包含：\n1. 执行步骤回顾（Markdown todolist）\n2. 分析结果（以 "## 分析结果" 开头）\n3. 图表规范：使用 Mermaid 生成图表，淡色主题（neutral），深色文字\n\n用户要求生成流程图，我需要创建一个简单的流程图示例，使用随意数据。\n\n由于用户明确要求不调用任何工具，我可以直接进入 attempt_completion。\n</thinking>\n\n<attempt_completion>\n<result>${this.content}\n</result>\n</attempt_completion>`
     // this.flowData.complete = "\n本次任务一共执行了以下步骤：\n- [x] 调用MCP工具查询可用模板列表，获取到'党委会会议纪要.docx'和'政工会会议纪要.docx'两个模板\n- [x] 根据用户需求匹配最优模板，选择'党委会会议纪要.docx'作为生成依据\n- [x] 调用MCP工具获取'党委会会议纪要.docx'模板的详细解析规则，包括版式规范、字段定义和生成要求\n- [x] 根据模板要求生成符合党政机关会议纪要语体的JSON数据结构\n- [x] 将JSON数据转换为HTML格式的文档代码，确保符合公文格式规范\n\n## 分析结果\n已根据用户要求\"请以党委会会议纪要为模板写一篇标题随意的文档\"生成了完整的会议纪要文档。文档采用标准的党政机关公文格式，包含密级标识、主标题、编号信息、正文标题、主送单位、正文内容、附件标识和版记表格等完整要素。\n\n```html\n<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>党委会会议纪要</title>\n</head>\n<body style=\"margin: 0; padding: 0; font-family: '仿宋', 'FangSong', serif; background-color: #ffffff;\">\n    <div style=\"width: 595px; margin: 0 auto; padding: 0; box-sizing: border-box;\">\n        <!-- 密级标识 -->\n        <table style=\"width: 100%; border-collapse: collapse; margin-bottom: 10px;\">\n            <tr>\n                <td align=\"left\" style=\"width: 50%; padding: 0;\">\n                    <div style=\"font-size: 16pt; font-weight: bold; color: #000000;\">内部</div>\n                </td>\n                <td align=\"right\" style=\"width: 50%; padding: 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">2026年6月10日</div>\n                </td>\n            </tr>\n        </table>\n\n        <!-- 主标题 -->\n        <div style=\"text-align: center; margin: 20px 0 30px 0;\">\n            <div style=\"font-size: 22pt; font-weight: bold; color: #000000; line-height: 1.5;\">党委会会议纪要</div>\n        </div>\n\n        <!-- 编号信息 -->\n        <table style=\"width: 100%; border-collapse: collapse; margin-bottom: 20px;\">\n            <tr>\n                <td align=\"left\" style=\"width: 33.33%; padding: 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">〔2026〕第15号</div>\n                </td>\n                <td align=\"center\" style=\"width: 33.33%; padding: 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">党委办公室</div>\n                </td>\n                <td align=\"right\" style=\"width: 33.33%; padding: 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">签发人：张书记</div>\n                </td>\n            </tr>\n        </table>\n\n        <!-- 正文标题 -->\n        <div style=\"text-align: center; margin: 25px 0 20px 0;\">\n            <div style=\"font-size: 18pt; font-weight: bold; color: #000000; line-height: 1.5;\">关于近期重点工作部署的会议纪要</div>\n        </div>\n\n        <!-- 主送单位 -->\n        <div style=\"margin: 0 0 25px 0;\">\n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8;\">各党支部、各部门：</div>\n        </div>\n\n        <!-- 正文内容 -->\n        <div style=\"margin: 0 0 30px 0;\">\n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt;\">\n                2026年6月10日下午，党委会在机关三楼会议室召开会议，专题研究部署近期重点工作。会议由党委书记张三同志主持，党委副书记李四、王五，党委委员赵六、钱七、孙八等同志出席会议，办公室刘九同志列席会议并作记录。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议首先听取了各分管领导关于近期工作进展情况的汇报。李四同志汇报了思想政治建设方面的工作，王五同志汇报了组织建设情况，赵六同志汇报了纪律检查工作，钱七同志汇报了宣传工作进展，孙八同志汇报了统战工作情况。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议认为，今年以来，在上级党委的正确领导下，各党支部、各部门认真贯彻落实党的路线方针政策，各项工作取得积极进展。思想政治建设不断加强，组织建设稳步推进，纪律检查工作成效明显，宣传工作有声有色，统战工作扎实有效。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议指出，当前工作中仍存在一些需要改进的地方：一是理论学习深度有待加强；二是部分工作落实不够到位；三是创新意识需要进一步提升。会议要求各党支部、各部门要高度重视这些问题，采取有效措施加以解决。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议研究决定：\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; margin-left: 28pt; margin-top: 10px;\">\n                一、加强理论学习。各党支部要组织党员干部深入学习党的创新理论，每月至少开展一次专题学习，确保学习效果。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; margin-left: 28pt; margin-top: 10px;\">\n                二、推进工作落实。各部门要按照年度工作计划，细化工作措施，明确责任分工，确保各项工作落到实处。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; margin-left: 28pt; margin-top: 10px;\">\n                三、鼓励工作创新。要支持各部门在工作中大胆探索，勇于创新，形成一批可复制、可推广的经验做法。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议强调，各党支部、各部门要进一步提高政治站位，增强责任意识，以更加饱满的热情、更加务实的作风，推动各项工作再上新台阶。\n            </div>\n            \n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8; text-indent: 28pt; margin-top: 15px;\">\n                会议要求，办公室要加强对会议决定事项的督促检查，确保各项决策部署落到实处。各党支部、各部门要将本次会议精神及时传达到全体党员干部，并认真抓好贯彻落实。\n            </div>\n        </div>\n\n        <!-- 附件标识 -->\n        <div style=\"margin: 0 0 20px 0;\">\n            <div style=\"font-size: 14pt; color: #000000; line-height: 1.8;\">附件：1. 近期重点工作任务分解表</div>\n        </div>\n\n        <!-- 版记表格 -->\n        <table style=\"width: 100%; border-collapse: collapse; margin-top: 40px; border-top: 1px solid #000000;\">\n            <tr>\n                <td align=\"left\" style=\"width: 50%; padding: 10px 0 0 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">主题词：党委会 会议纪要 工作部署</div>\n                </td>\n                <td align=\"right\" style=\"width: 50%; padding: 10px 0 0 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">共印30份</div>\n                </td>\n            </tr>\n            <tr>\n                <td align=\"left\" style=\"padding: 5px 0 0 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">抄送：上级党委，存档</div>\n                </td>\n                <td align=\"right\" style=\"padding: 5px 0 0 0;\">\n                    <div style=\"font-size: 12pt; color: #000000;\">党委办公室 2026年6月10日印发</div>\n                </td>\n            </tr>\n        </table>\n    </div>\n</body>\n</html>\n```\n"
   },
   mounted() {
@@ -743,7 +744,7 @@ export default {
         if (this.index < this.testStr.length) {
           this.onclick()
         }
-      }, 50)
+      }, 10)
     },
     // 2. 解码：还原原始字符串
     htmlDecode(str) {

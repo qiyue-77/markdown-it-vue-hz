@@ -143,6 +143,10 @@ export default {
                 case 'html':
                   this.runderHtml(val)
                   break
+                case 'echarts': {
+                  this.runderHtml(val)
+                  break
+                }
                 default:
                   break
               }
@@ -227,6 +231,19 @@ export default {
           try {
             console.log('echarts code:', element.getAttribute('data-options'))
             let options = JSON.parse(decodeURIComponent(element.getAttribute('data-options')))
+            // 饼图：动态注入 legend formatter 显示百分比
+            const pieSeries = options.series?.find((s) => s.type === 'pie')
+            if (pieSeries && Array.isArray(pieSeries.data)) {
+              const total = pieSeries.data.reduce((sum, d) => sum + (d.value || 0), 0)
+              const percentMap = {}
+              pieSeries.data.forEach((d) => {
+                percentMap[d.name] = total ? Math.round((d.value / total) * 100) + '%' : '0%'
+              })
+              if (!options.legend) options.legend = {}
+              options.legend.formatter = (name) => {
+                return name + '  ' + (percentMap[name] || '')
+              }
+            }
             let chart = echarts.init(element)
             chart.setOption(options)
           } catch (e) {
@@ -413,12 +430,17 @@ svg .pieCircle {
 }
 
 .mermaid-error,
-.chart-error {
+.chart-error,
+.echarts-loading {
   height: 120px;
   margin-bottom: 10px;
   img {
     height: 100%;
   }
+}
+
+.echarts-loading img {
+  background-color: transparent !important;
 }
 
 .md-html {
