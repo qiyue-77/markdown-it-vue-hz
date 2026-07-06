@@ -115,15 +115,21 @@ export default {
     },
   },
   watch: {
-    streamDone(val) {
-      if (!val) return
-      this.$nextTick(() => {
-        const container = this.$refs['markdown-it-vue-container']
-        if (!container) return
-        container.querySelectorAll('.md-html[data-loading="true"]').forEach((el) => {
-          el.removeAttribute('data-loading')
+    streamDone: {
+      handler(val) {
+        if (!val) return
+        this.$nextTick(() => {
+          console.log('streamDone:', val)
+          const container = this.$refs['markdown-it-vue-container']
+          if (!container) return
+          container
+            .querySelectorAll('.md-html[data-loading="true"]')
+            .forEach((el) => {
+              el.removeAttribute('data-loading')
+            })
         })
-      })
+      },
+      deep: true,
     },
     content: {
       immediate: true,
@@ -224,20 +230,36 @@ export default {
     },
     async runderHtml(val) {
       this.$refs['markdown-it-vue-container'].innerHTML = this.md.render(val)
+      // 正则匹配文本中完整闭合的 ```html ... ``` 代码块数量
+      const completedBlocks = (val.match(/```html[\s\S]*?```/g) || []).length
+      const htmlEls = this.$refs['markdown-it-vue-container'].querySelectorAll('.md-html[data-loading="true"]')
+      // 前面 completedBlocks 个一定是已完成的，去掉 loading；最后一个（正在输出的）保留
+      htmlEls.forEach((el, index) => {
+        if (index < completedBlocks) {
+          el.removeAttribute('data-loading')
+        }
+      })
       // render echarts
       this.$refs['markdown-it-vue-container']
         .querySelectorAll('.md-echarts')
         .forEach((element) => {
           try {
             console.log('echarts code:', element.getAttribute('data-options'))
-            let options = JSON.parse(decodeURIComponent(element.getAttribute('data-options')))
+            let options = JSON.parse(
+              decodeURIComponent(element.getAttribute('data-options'))
+            )
             // 饼图：动态注入 legend formatter 显示百分比
             const pieSeries = options.series?.find((s) => s.type === 'pie')
             if (pieSeries && Array.isArray(pieSeries.data)) {
-              const total = pieSeries.data.reduce((sum, d) => sum + (d.value || 0), 0)
+              const total = pieSeries.data.reduce(
+                (sum, d) => sum + (d.value || 0),
+                0
+              )
               const percentMap = {}
               pieSeries.data.forEach((d) => {
-                percentMap[d.name] = total ? Math.round((d.value / total) * 100) + '%' : '0%'
+                percentMap[d.name] = total
+                  ? Math.round((d.value / total) * 100) + '%'
+                  : '0%'
               })
               if (!options.legend) options.legend = {}
               options.legend.formatter = (name) => {
@@ -248,7 +270,9 @@ export default {
             chart.setOption(options)
           } catch (e) {
             const errorImg = this.getErrorImg()
-            element.outerHTML = `<div class="chart-error" data-error="${this.htmlEncode(String(e))}"><img src="${errorImg}" alt="" data-no-preview="true" style="height: 100%;"></div>`
+            element.outerHTML = `<div class="chart-error" data-error="${this.htmlEncode(
+              String(e)
+            )}"><img src="${errorImg}" alt="" data-no-preview="true" style="height: 100%;"></div>`
           }
         })
       // 使用新版 mermaid 的异步渲染和验证
@@ -284,7 +308,9 @@ export default {
             chart.drawSVG(element)
           } catch (e) {
             const errorImg = this.getErrorImg()
-            element.outerHTML = `<div class="chart-error" data-error="${this.htmlEncode(String(e))}"><img src="${errorImg}" alt="" data-no-preview="true" style="height: 100%;"></div>`
+            element.outerHTML = `<div class="chart-error" data-error="${this.htmlEncode(
+              String(e)
+            )}"><img src="${errorImg}" alt="" data-no-preview="true" style="height: 100%;"></div>`
           }
         })
 
@@ -362,12 +388,12 @@ svg [class*='bar-plot-'] text {
   font-size: 16px;
 }
 svg [class*='bar-plot-'] rect {
-  fill:#666EEC;
+  fill: #666eec;
 }
 svg .pieOuterCircle,
 svg .pieCircle {
   stroke: transparent !important;
-  opacity: 1!important;
+  opacity: 1 !important;
 }
 .markdown-it-vue-alter-info {
   border: 1px solid #91d5ff;
@@ -537,7 +563,7 @@ svg .pieCircle {
   background-color: transparent !important;
 }
 
-.md-html:not([data-loading="true"]) .md-html-actions button {
+.md-html:not([data-loading='true']) .md-html-actions button {
   background-color: #1f71ff;
   border-color: #1f71ff;
   color: #fff;

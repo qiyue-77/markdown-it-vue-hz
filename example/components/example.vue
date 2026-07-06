@@ -6,14 +6,14 @@
     <button @click="extractMermaid">提取编码</button>
     <button @click="replace">正则替换</button>
     <div class="container">
-      <textarea class="md-text" rows="10" v-model="content" />
+      <textarea class="md-text" rows="10" v-model="flowData.complete" />
       <markdown-it-vue
         class="md-body"
-        :content="content"
+        :content="flowData.complete"
         :options="options"
         ref="markdown"
         :codeBlockType="flowData.codeBlockType"
-        :streamDone="flowData.streamStop"
+        :streamDone="flowData.streamDone"
         theme="purple"
         @html-preview="handleHtmlPreview"
         @html-download="handleHtmlDownload"
@@ -142,7 +142,7 @@ export default {
       str: "\n\n好的，我来分析广东省在全国范围内出现异常高增长的案件类型。我将使用数据问答工具查询案件基本信息分类表的数据。\n\n<use_mcp_tool>\n<server_name>小智数据问答</server_name>\n<tool_name>53_mcplink_data_answer_get_dmc_data_tbdata</tool_name>\n<arguments>\n{\n    \"searchParams\": {\n        \"query\": \"统计广东省各类案件类型的案件数量，按年份分组，并与全国各类案件数量进行对比，找出广东省增长异常高的案件类型\",\n        \"tbIds\": \"tb_f1cf411f82a34ce793800725c9f6a865\"\n    }\n}\n</arguments>\n",
       redDocumentMd: '',
       htmlContent:
-        '```html\n<div style="width:210mm;min-height:297mm;background:#fff;padding:37mm 26mm 35mm 28mm;position:relative;box-shadow:0 0 10px rgba(0,0,0,0.1);font-family:仿宋,FangSong_GB2312,SimSun,serif;margin:0 auto;">\n  <div style="width:158.3mm;font-family:黑体,sans-serif;margin-bottom:5mm;">\n    <div>非密★2026年</div>\n    <div>一般</div>\n  </div>\n\n  <h1 style="font-family:方正小标宋简体,小标宋体,华文中宋,SimSun;font-size:45pt;color:#FF0000;text-align:center;margin:0 0 10mm 0;">政工会会议纪要</h1>\n\n  <div style="width:157.5mm;margin-bottom:10mm;">\n    <div style="text-align:center;margin-bottom:2mm;">〔2026〕XX号</div>\n    <div style="display:flex;justify-content:space-between;">\n      <span>党委行政办公室</span>\n      <span>2026年5月20日</span>\n    </div>\n  </div>\n\n  <h2 style="font-family:方正小标宋简体,小标宋体,华文中宋,SimSun;font-size:22pt;text-align:center;margin:10mm 0 8mm 0;">关于2026年度重点工作推进安排的会议纪要</h2>\n\n  <div style="margin-bottom:6mm;">主送：各部门、各单位</div>\n\n  <p style="font-size:16pt;text-align:justify;text-indent:2em;margin-bottom:6mm;">为进一步统一思想、明确任务、压实责任，切实推动年度各项工作落地见效，单位召开政工工作专题会议。会议全面总结前期工作开展情况，分析当前存在的问题与不足，研究部署下一阶段重点任务。相关负责同志及各部门负责人参加会议。</p>\n  <p style="font-size:16pt;text-align:justify;text-indent:2em;margin-bottom:6mm;">会议议定：一是强化理论武装，持续抓好思想政治教育，提升队伍整体素质；二是细化工作举措，对照年度目标逐项分解任务，明确时限要求；三是加强作风建设，严明工作纪律，提高执行效能；四是统筹安全与发展，做好风险防控，保障各项工作平稳有序。</p>\n  <p style="font-size:16pt;text-align:justify;text-indent:2em;margin-bottom:6mm;">会议要求，各部门要提高站位、密切配合、狠抓落实，及时报送工作进展，确保高质量完成全年各项目标任务。</p>\n\n  <div style="margin-top:8mm;font-size:16pt;">附件：无</div>\n\n  <table style="width:100%;border-collapse:collapse;margin-top:25mm;font-size:14pt;">\n    <tr>\n      <td style="border:1px solid #000;padding:2mm;vertical-align:middle;"></td>\n      <td colspan="4" style="border:1px solid #000;padding:2mm;vertical-align:middle;">主送：各部门、各单位</td>\n    </tr>\n    <tr>\n      <td style="border:1px solid #000;padding:2mm;vertical-align:middle;"></td>\n      <td colspan="4" style="border:1px solid #000;padding:2mm;vertical-align:middle;">抄送：相关领导</td>\n    </tr>\n    <tr>\n      <td colspan="3" style="border:1px solid #000;padding:2mm;vertical-align:middle;">XX单位</td>\n      <td colspan="2" style="border:1px solid #000;padding:2mm;vertical-align:middle;">2026年5月20日印发</td>\n    </tr>\n    <tr>\n      <td colspan="2" style="border:1px solid #000;padding:2mm;vertical-align:middle;">联系人：</td>\n      <td colspan="2" style="border:1px solid #000;padding:2mm;vertical-align:middle;">电话：</td>\n      <td style="border:1px solid #000;padding:2mm;vertical-align:middle;">共印份</td>\n    </tr>\n  </table>\n\n  <div style="position:absolute;bottom:20mm;left:50%;transform:translateX(-50%);font-size:14pt;">—1—</div>\n</div>```',
+       "<attempt_completion>\n<result>```html\n<!-- 无边框表格，仅底部有3px红色实线 -->\n<table style=\"width:100%; border-bottom: 3px solid #ff0000\">\n  <tr>\n    <td colspan=\"2\" align=\"center\">发文字号</td>\n  </tr>\n  <tr>\n    <td align=\"left\" width=\"50%\"></td>\n    <td align=\"right\" width=\"50%\"></td>\n  </tr>\n  <tr>\n    <td align=\"left\" width=\"50%\">印发机关</td>\n    <td align=\"right\" width=\"50%\">印发日期</td>\n  </tr>\n</table>\n```\n\n**版记表格结构**：\n```html\n<!-- 黑色实线边框，1px solid #000000 -->\n<table style=\"width:100%; margin-top: 60pt\">\n  <!-- 第1行：主送 -->\n  <tr>\n    <td width=\"70\" style=\"border-top:1px solid #000000\">主送：</td>\n    <td colspan=\"5\" style=\"border-top:1px solid #000000\">主送内容</td>\n  </tr>\n  <!-- 第2行：抄送 -->\n  <tr>\n    <td width=\"70\" style=\"border-bottom:1px solid #000000\">抄送：</td>\n    <td colspan=\"5\" style=\"border-bottom:1px solid #000000\">抄送内容</td>\n  </tr>\n  <!-- 第3行：印发机关 + 印发日期 -->\n  <tr>\n    <td colspan=\"3\" width=\"50%\" style=\"border-bottom:1px solid #000000\">印发机关全称</td>\n    <td colspan=\"3\" width=\"50%\" align=\"right\" style=\"border-bottom:1px solid #000000\">印发日期</td>\n  </tr>\n  <!-- 第4行：联系人 + 电话 + 共印份数 -->\n  <tr>\n    <td colspan=\"2\" width=\"33%\" style=\"border-bottom:1px solid #000000\">联系人：姓名</td>\n    <td colspan=\"2\" width=\"33%\" style=\"border-bottom:1px solid #000000\">电话：号码</td>\n    <td colspan=\"2\" width=\"33%\" align=\"right\" style=\"border-bottom:1px solid #000000\">共印X份</td>\n  </tr>\n</table>\n``` \n**版记表格边框**：1px solid #000000。若检测到版记表格无边框或颜色不符，判定为生成失败。\n- **版记内容字体**：仿宋，14 pt。若检测到版记字体为其他字体或字号不符，判定为生成失败。\n</result>\n</attempt_completion>",
       options: {
         markdownIt: {
           linkify: true,
@@ -455,11 +455,12 @@ export default {
       }
     },
     onclick() {
-      const chunk = this.testStr.slice(this.index, this.index + 1)
+      const chunk = this.htmlContent.slice(this.index, this.index + 1)
       this.flow(chunk, 'think')
       this.index += 1
-      if (this.index >= this.testStr.length) {
+      if (this.index >= this.htmlContent.length) {
         this.flowData.streamDone = true
+        console.log('流式输出完成',this.flowData.streamDone)
       }
     },
     download() {
@@ -741,7 +742,7 @@ export default {
     },
     onTime() {
       setInterval(() => {
-        if (this.index < this.testStr.length) {
+        if (this.index < this.htmlContent.length) {
           this.onclick()
         }
       }, 10)
