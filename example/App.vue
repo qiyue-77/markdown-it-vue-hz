@@ -28,5 +28,6 @@ html, body {
   padding: 0;
   height: 100%;
   overflow: auto;
+  background-color: black;
 }
 </style>

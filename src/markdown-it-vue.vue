@@ -248,6 +248,8 @@ export default {
             let options = JSON.parse(
               decodeURIComponent(element.getAttribute('data-options'))
             )
+            // 禁用动画，避免流式渲染时抽搐
+            options.animation = false
             // 饼图：动态注入 legend formatter 显示百分比
             const pieSeries = options.series?.find((s) => s.type === 'pie')
             if (pieSeries && Array.isArray(pieSeries.data)) {
@@ -266,8 +268,11 @@ export default {
                 return name + '  ' + (percentMap[name] || '')
               }
             }
-            let chart = echarts.init(element)
-            chart.setOption(options)
+            let chart = echarts.getInstanceByDom(element)
+            if (!chart) {
+              chart = echarts.init(element)
+            }
+            chart.setOption(options, true)
           } catch (e) {
             const errorImg = this.getErrorImg()
             element.outerHTML = `<div class="chart-error" data-error="${this.htmlEncode(
