@@ -1,9 +1,11 @@
 import previewIcon from './images/preview-icon.png'
 import downloadIcon from './images/download-icon.png'
+import templateCompareIcon from './images/template-compare-icon.png'
 import previewRight from './images/preview-right.png'
 import downloadRight from './images/download-right.png'
 
-export default (md) => {
+export default (md, options = {}) => {
+  const { showTemplateCompare = false } = options
   const temp = md.renderer.rules.fence.bind(md.renderer.rules)
   md.renderer.rules.fence = (tokens, idx, options, env, slf) => {
     const token = tokens[idx]
@@ -14,6 +16,10 @@ export default (md) => {
           String.fromCharCode(byte)
         ).join('')
       )
+
+      const templateCompareBtn = showTemplateCompare
+        ? `<button class="md-html-template-compare"><img src="${templateCompareIcon}" alt="" /><span>模板对比详情</span></button>`
+        : ''
 
       return `<div class="md-html" data-loading="true" data-raw-html="${encodedHtml}">
   <div class="md-html-left">
@@ -26,6 +32,7 @@ export default (md) => {
     <div class="md-html-actions">
       <button class="md-html-preview"><img src="${previewIcon}" alt="" /><span>预览</span></button>
       <button class="md-html-download"><img src="${downloadIcon}" alt="" /><span>下载</span></button>
+      ${templateCompareBtn}
     </div>
   </div>
   <div class="md-html-right">

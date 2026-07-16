@@ -106,6 +106,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    showHtmlTemplateCompare: {
+      type: Boolean,
+      default: false,
+    },
     theme: {
       type: String,
       default: 'light',
@@ -192,7 +196,7 @@ export default {
       .use(MarkdownItSourceMap)
       .use(MarkdownItMermaid, optMermaid)
       .use(MarkdownItEcharts, { theme: this.theme })
-      .use(MarkdownItHtml)
+      .use(MarkdownItHtml, { showTemplateCompare: this.showHtmlTemplateCompare })
       .use(MarkdownItFlowchart)
       .use(MarkdownItLinkAttributes, linkAttributes)
       .use(MarkdownItKatex, optKatex)
@@ -346,6 +350,13 @@ export default {
               this.$emit('html-download', rawHtml)
             })
           }
+          const templateCompareBtn = element.querySelector('.md-html-template-compare')
+          if (templateCompareBtn) {
+            templateCompareBtn.addEventListener('click', (e) => {
+              e.stopPropagation()
+              this.$emit('html-template-compare', rawHtml)
+            })
+          }
           element.querySelectorAll('img').forEach((img) => {
             img.dataset.noPreview = 'true'
           })
@@ -476,9 +487,9 @@ svg .pieCircle {
 
 .md-html {
   display: flex;
+  width: fit-content;
   align-items: center;
   justify-content: space-between;
-  width: 480px;
   background-color: #f7f8fa;
   border-radius: 12px;
   padding: 12px 24px;
@@ -561,7 +572,8 @@ svg .pieCircle {
 }
 
 .md-html-preview img,
-.md-html-download img {
+.md-html-download img,
+.md-html-template-compare img {
   width: 16px;
   height: 16px;
   display: block;

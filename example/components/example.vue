@@ -14,9 +14,11 @@
         ref="markdown"
         :codeBlockType="flowData.codeBlockType"
         :streamDone="flowData.streamDone"
-        theme="purple"
+        :showHtmlTemplateCompare="true"
+        theme="light"
         @html-preview="handleHtmlPreview"
         @html-download="handleHtmlDownload"
+        @html-template-compare="handleHtmlTemplateCompare"
       />
     </div>
     <div
@@ -865,6 +867,10 @@ export default {
         doc.write(rawHtml)
         doc.close()
       })
+    },
+    handleHtmlTemplateCompare(rawHtml) {
+     console.log('HTML模板对比:', rawHtml)
+      // 这里可以添加对比逻辑，比如将rawHtml与预定义模板进行比较
     },
     handleHtmlDownload(rawHtml) {
       const fullHTML = `<!DOCTYPE html>
